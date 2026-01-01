@@ -1,0 +1,19 @@
+{
+  "name": "discuss-ev",
+  "version": "1.0.0",
+  "description": "Electric Vehicle Discussion and Community Platform",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "cd backend && npm run dev",
+    "client": "cd frontend && npm run dev",
+    "build": "cd frontend && npm run build",
+    "install-all": "npm install && cd backend && npm install && cd ../frontend && npm install"
+  },
+  "keywords": ["electric-vehicles", "discussion", "community", "react", "nodejs"],
+  "author": "DiscussEV Team",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
