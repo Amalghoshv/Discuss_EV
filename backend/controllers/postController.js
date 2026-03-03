@@ -1,12 +1,28 @@
 const { validationResult } = require('express-validator');
-const { Post, User, Comment, Reaction } = require('../models');
+const { Post, User, Comment, Reaction, Tag, PostTag } = require('../models');
 const { Op } = require('sequelize');
+
+const handleTags = async (post, tags) => {
+  if (!tags || !Array.isArray(tags)) return;
+
+  const tagInstances = await Promise.all(
+    tags.map(async (tagName) => {
+      const [tag] = await Tag.findOrCreate({
+        where: { name: tagName.toLowerCase().trim() }
+      });
+      await tag.increment('usageCount');
+      return tag;
+    })
+  );
+
+  await post.setTagList(tagInstances);
+};
 
 const createPost = async (req, res) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         message: 'Validation failed',
         errors: errors.array()
       });
@@ -20,17 +36,27 @@ const createPost = async (req, res) => {
       content,
       type,
       category,
-      tags: tags || [],
       userId
     });
 
-    // Fetch the created post with author information
+    // Handle relational tags
+    if (tags && tags.length > 0) {
+      await handleTags(post, tags);
+    }
+
+    // Fetch the created post with author information and tags
     const createdPost = await Post.findByPk(post.id, {
       include: [
         {
           model: User,
           as: 'author',
           attributes: ['id', 'username', 'firstName', 'lastName', 'avatar']
+        },
+        {
+          model: Tag,
+          as: 'tagList',
+          attributes: ['id', 'name', 'slug'],
+          through: { attributes: [] }
         }
       ]
     });
@@ -64,11 +90,7 @@ const getPosts = async (req, res) => {
     // Add filters
     if (category) whereClause.category = category;
     if (type) whereClause.type = type;
-    if (tags) {
-      whereClause.tags = {
-        [Op.contains]: Array.isArray(tags) ? tags : [tags]
-      };
-    }
+
     if (search) {
       whereClause[Op.or] = [
         { title: { [Op.iLike]: `%${search}%` } },
@@ -76,22 +98,44 @@ const getPosts = async (req, res) => {
       ];
     }
 
+    const include = [
+      {
+        model: User,
+        as: 'author',
+        attributes: ['id', 'username', 'firstName', 'lastName', 'avatar']
+      },
+      {
+        model: Comment,
+        as: 'comments',
+        attributes: ['id'],
+        limit: 1,
+        order: [['createdAt', 'DESC']]
+      },
+      {
+        model: Tag,
+        as: 'tagList',
+        attributes: ['id', 'name', 'slug'],
+        through: { attributes: [] }
+      }
+    ];
+
+    // Filter by tags if provided
+    if (tags) {
+      const tagArray = Array.isArray(tags) ? tags : [tags];
+      include.push({
+        model: Tag,
+        as: 'tagList',
+        where: {
+          name: { [Op.in]: tagArray.map(t => t.toLowerCase()) }
+        },
+        through: { attributes: [] }
+      });
+    }
+
     const { count, rows: posts } = await Post.findAndCountAll({
       where: whereClause,
-      include: [
-        {
-          model: User,
-          as: 'author',
-          attributes: ['id', 'username', 'firstName', 'lastName', 'avatar']
-        },
-        {
-          model: Comment,
-          as: 'comments',
-          attributes: ['id'],
-          limit: 1,
-          order: [['createdAt', 'DESC']]
-        }
-      ],
+      include,
+      distinct: true, // Required for proper count when including many-to-many
       order: [[sortBy, sortOrder.toUpperCase()]],
       limit: parseInt(limit),
       offset: parseInt(offset)
@@ -125,6 +169,12 @@ const getPostById = async (req, res) => {
           attributes: ['id', 'username', 'firstName', 'lastName', 'avatar', 'bio']
         },
         {
+          model: Tag,
+          as: 'tagList',
+          attributes: ['id', 'name', 'slug'],
+          through: { attributes: [] }
+        },
+        {
           model: Comment,
           as: 'comments',
           include: [
@@ -135,6 +185,7 @@ const getPostById = async (req, res) => {
             }
           ],
           where: { isDeleted: false },
+          required: false,
           order: [['createdAt', 'ASC']]
         }
       ]
@@ -171,14 +222,18 @@ const updatePost = async (req, res) => {
     }
 
     const { title, content, type, category, tags } = req.body;
-    
+
     await post.update({
       title: title || post.title,
       content: content || post.content,
       type: type || post.type,
-      category: category || post.category,
-      tags: tags || post.tags
+      category: category || post.category
     });
+
+    // Update tags
+    if (tags) {
+      await handleTags(post, tags);
+    }
 
     const updatedPost = await Post.findByPk(id, {
       include: [
@@ -186,6 +241,12 @@ const updatePost = async (req, res) => {
           model: User,
           as: 'author',
           attributes: ['id', 'username', 'firstName', 'lastName', 'avatar']
+        },
+        {
+          model: Tag,
+          as: 'tagList',
+          attributes: ['id', 'name', 'slug'],
+          through: { attributes: [] }
         }
       ]
     });
@@ -284,6 +345,12 @@ const getTrendingPosts = async (req, res) => {
           model: User,
           as: 'author',
           attributes: ['id', 'username', 'firstName', 'lastName', 'avatar']
+        },
+        {
+          model: Tag,
+          as: 'tagList',
+          attributes: ['id', 'name', 'slug'],
+          through: { attributes: [] }
         }
       ],
       order: [

@@ -23,7 +23,7 @@ import {
 import { useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
-import { register, clearError } from '../store/slices/authSlice';
+import { register as registerUser, clearError } from '../store/slices/authSlice';
 import { showSnackbar } from '../store/slices/uiSlice';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 
@@ -31,10 +31,10 @@ const Register = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { isLoading, error } = useSelector((state) => state.auth);
-  
+
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  
+
   const {
     register,
     handleSubmit,
@@ -46,7 +46,7 @@ const Register = () => {
 
   const onSubmit = async (data) => {
     try {
-      await dispatch(register(data)).unwrap();
+      await dispatch(registerUser(data)).unwrap();
       dispatch(showSnackbar({
         message: 'Registration successful! Welcome to DiscussEV!',
         severity: 'success',
