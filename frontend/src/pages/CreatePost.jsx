@@ -25,9 +25,9 @@ const CreatePost = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { isCreating } = useSelector((state) => state.posts);
-  
+
   const [tags, setTags] = useState([]);
-  
+
   const {
     register,
     handleSubmit,
@@ -66,9 +66,9 @@ const CreatePost = () => {
     try {
       const postData = {
         ...data,
-        tags: tags.map(tag => typeof tag === 'string' ? tag : tag.label),
+        tags: tags.map(tag => typeof tag === 'string' ? tag : tag.name || tag.label),
       };
-      
+
       const result = await dispatch(createPost(postData)).unwrap();
       dispatch(showSnackbar({
         message: 'Post created successfully!',
@@ -88,12 +88,12 @@ const CreatePost = () => {
   }
 
   return (
-    <Container maxWidth="md" sx={{ py: 4 }}>
+    <Container maxWidth={false} sx={{ py: 4, px: { xs: 2, md: 4, lg: 6 } }}>
       <Paper elevation={3} sx={{ p: 4 }}>
         <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold' }}>
           Create New Post
         </Typography>
-        
+
         <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
           Share your EV experiences, ask questions, or start a discussion with the community.
         </Typography>

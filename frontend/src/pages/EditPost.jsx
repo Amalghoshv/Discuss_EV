@@ -3,7 +3,7 @@ import { Container, Typography, Box } from '@mui/material';
 
 const EditPost = () => {
   return (
-    <Container maxWidth="md" sx={{ py: 4 }}>
+    <Container maxWidth={false} sx={{ py: 4, px: { xs: 2, md: 4, lg: 6 } }}>
       <Box sx={{ textAlign: 'center' }}>
         <Typography variant="h4" gutterBottom>
           Edit Post

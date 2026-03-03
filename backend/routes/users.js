@@ -1,13 +1,15 @@
 const express = require('express');
-const { authenticateToken } = require('../middleware/auth');
-const { User, Post, Comment } = require('../models');
+const { authenticateToken, optionalAuth } = require('../middleware/auth');
+const { User, Post, Comment, Follow } = require('../models');
+const { Op } = require('sequelize');
 
 const router = express.Router();
 
 // Get user profile
-router.get('/:id', async (req, res) => {
+router.get('/:id', optionalAuth, async (req, res) => {
   try {
     const { id } = req.params;
+    const currentUserId = req.user ? req.user.id : null;
 
     const user = await User.findByPk(id, {
       attributes: { exclude: ['password'] },
@@ -19,6 +21,18 @@ router.get('/:id', async (req, res) => {
           required: false,
           limit: 10,
           order: [['createdAt', 'DESC']]
+        },
+        {
+          model: User,
+          as: 'followers',
+          attributes: ['id'],
+          through: { attributes: [] }
+        },
+        {
+          model: User,
+          as: 'following',
+          attributes: ['id'],
+          through: { attributes: [] }
         }
       ]
     });
@@ -27,7 +41,21 @@ router.get('/:id', async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    res.json({ user: user.getPublicProfile() });
+    const userData = user.getPublicProfile();
+    userData.followerCount = user.followers.length;
+    userData.followingCount = user.following.length;
+
+    // Check if current user follows this user
+    userData.isFollowing = false;
+    if (currentUserId) {
+      userData.isFollowing = user.followers.some(f => f.id === currentUserId);
+    }
+
+    // Clean up raw associations
+    delete userData.followers;
+    delete userData.following;
+
+    res.json({ user: userData });
   } catch (error) {
     console.error('Get user profile error:', error);
     res.status(500).json({ message: 'Failed to fetch user profile' });
@@ -59,6 +87,59 @@ router.put('/profile', authenticateToken, async (req, res) => {
   } catch (error) {
     console.error('Update profile error:', error);
     res.status(500).json({ message: 'Failed to update profile' });
+  }
+});
+
+// Follow user
+router.post('/:id/follow', authenticateToken, async (req, res) => {
+  try {
+    const { id: followedId } = req.params;
+    const followerId = req.user.id;
+
+    if (followedId === followerId) {
+      return res.status(400).json({ message: 'You cannot follow yourself' });
+    }
+
+    const userToFollow = await User.findByPk(followedId);
+    if (!userToFollow) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const [follow, created] = await Follow.findOrCreate({
+      where: { followerId, followedId }
+    });
+
+    if (!created) {
+      return res.status(400).json({ message: 'Already following this user' });
+    }
+
+    res.json({ message: 'User followed successfully' });
+  } catch (error) {
+    console.error('Follow user error:', error);
+    res.status(500).json({ message: 'Failed to follow user' });
+  }
+});
+
+// Unfollow user
+router.delete('/:id/follow', authenticateToken, async (req, res) => {
+  try {
+    const { id: followedId } = req.params;
+    const followerId = req.user.id;
+
+    const follow = await Follow.findOne({
+      where: { followerId, followedId }
+    });
+
+    if (!follow) {
+      return res.status(400).json({ message: 'Not following this user' });
+    }
+
+    await follow.destroy();
+
+    res.json({ message: 'User unfollowed successfully' });
+  } catch (error) {
+    console.error('Unfollow user error:', error);
+    res.status(500).json({ message: 'Failed to unfollow user' });
   }
 });
 
@@ -98,6 +179,20 @@ router.get('/:id/posts', async (req, res) => {
   } catch (error) {
     console.error('Get user posts error:', error);
     res.status(500).json({ message: 'Failed to fetch user posts' });
+  }
+});
+
+// Admin only: Get all users
+const { authorizeRoles } = require('../middleware/auth');
+router.get('/', authenticateToken, authorizeRoles('admin'), async (req, res) => {
+  try {
+    const users = await User.findAll({
+      attributes: { exclude: ['password'] }
+    });
+    res.json({ users });
+  } catch (error) {
+    console.error('Get all users error:', error);
+    res.status(500).json({ message: 'Failed to fetch users' });
   }
 });
 
