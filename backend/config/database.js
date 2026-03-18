@@ -1,6 +1,8 @@
 const { Sequelize } = require('sequelize');
 require('dotenv').config();
 
+const isProduction = process.env.NODE_ENV === 'production';
+
 const sequelize = new Sequelize(
   process.env.DB_NAME || 'discuss_ev',
   process.env.DB_USER || 'postgres',
@@ -15,7 +17,15 @@ const sequelize = new Sequelize(
       min: 0,
       acquire: 30000,
       idle: 10000
-    }
+    },
+    dialectOptions: isProduction
+      ? {
+          ssl: {
+            require: true,
+            rejectUnauthorized: false
+          }
+        }
+      : {}
   }
 );
 
@@ -23,9 +33,8 @@ const connectDB = async () => {
   try {
     await sequelize.authenticate();
     console.log('✅ Database connected successfully');
-    
-    // Sync models in development
-    if (process.env.NODE_ENV === 'development') {
+
+    if (process.env.DB_SYNC === 'true') {
       await sequelize.sync({ alter: true });
       console.log('📊 Database models synchronized');
     }
