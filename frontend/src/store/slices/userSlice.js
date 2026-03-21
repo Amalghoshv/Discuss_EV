@@ -37,9 +37,23 @@ export const unfollowUser = createAsyncThunk(
     }
 );
 
+export const searchUsers = createAsyncThunk(
+    'user/searchUsers',
+    async (q, { rejectWithValue }) => {
+        try {
+            const response = await userService.searchUsers(q);
+            return response.users;
+        } catch (error) {
+            return rejectWithValue(error.response?.data?.message || 'Failed to search users');
+        }
+    }
+);
+
 const initialState = {
     currentProfile: null,
+    searchResults: [],
     isLoading: false,
+    isSearchLoading: false,
     error: null,
     followLoading: false,
 };
@@ -50,6 +64,9 @@ const userSlice = createSlice({
     reducers: {
         clearProfile: (state) => {
             state.currentProfile = null;
+        },
+        clearSearchResults: (state) => {
+            state.searchResults = [];
         }
     },
     extraReducers: (builder) => {
@@ -66,6 +83,19 @@ const userSlice = createSlice({
                 state.isLoading = false;
                 state.error = action.payload;
             })
+            // Search Users
+            .addCase(searchUsers.pending, (state) => {
+                state.isSearchLoading = true;
+                state.error = null;
+            })
+            .addCase(searchUsers.fulfilled, (state, action) => {
+                state.isSearchLoading = false;
+                state.searchResults = action.payload;
+            })
+            .addCase(searchUsers.rejected, (state, action) => {
+                state.isSearchLoading = false;
+                state.error = action.payload;
+            })
             .addCase(followUser.pending, (state) => {
                 state.followLoading = true;
             })
@@ -74,6 +104,11 @@ const userSlice = createSlice({
                 if (state.currentProfile && state.currentProfile.id === action.payload) {
                     state.currentProfile.isFollowing = true;
                     state.currentProfile.followerCount += 1;
+                }
+                // Update search results if relevant
+                const searchedUser = state.searchResults.find(u => u.id === action.payload);
+                if (searchedUser) {
+                    searchedUser.isFollowing = true;
                 }
             })
             .addCase(followUser.rejected, (state) => {
@@ -88,6 +123,11 @@ const userSlice = createSlice({
                     state.currentProfile.isFollowing = false;
                     state.currentProfile.followerCount = Math.max(0, state.currentProfile.followerCount - 1);
                 }
+                // Update search results if relevant
+                const searchedUser = state.searchResults.find(u => u.id === action.payload);
+                if (searchedUser) {
+                    searchedUser.isFollowing = false;
+                }
             })
             .addCase(unfollowUser.rejected, (state) => {
                 state.followLoading = false;
@@ -95,5 +135,5 @@ const userSlice = createSlice({
     }
 });
 
-export const { clearProfile } = userSlice.actions;
+export const { clearProfile, clearSearchResults } = userSlice.actions;
 export default userSlice.reducer;

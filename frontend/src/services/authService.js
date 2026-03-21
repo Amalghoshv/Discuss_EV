@@ -21,6 +21,11 @@ const authService = {
     return response.data;
   },
 
+  changePassword: async (passwordData) => {
+    const response = await api.put('/users/password', passwordData);
+    return response.data;
+  },
+
   logout: async () => {
     const response = await api.post('/auth/logout');
     return response.data;

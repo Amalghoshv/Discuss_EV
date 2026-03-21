@@ -5,7 +5,6 @@ import {
   Box,
   Avatar,
   Button,
-  Grid,
   Paper,
   Divider,
   Tab,
@@ -17,6 +16,7 @@ import {
   useTheme,
   useMediaQuery,
 } from '@mui/material';
+import Grid from '@mui/material/Grid';
 import {
   PersonAdd,
   PersonRemove,
@@ -174,7 +174,7 @@ const Profile = () => {
       <Container maxWidth={false} sx={{ px: { xs: 2, md: 4, lg: 6 } }}>
         <Grid container spacing={4}>
           {/* Side Info */}
-          <Grid item xs={12} md={4}>
+          <Grid size={{ xs: 12, md: 4 }}>
             <Stack spacing={3}>
               <Paper className="glass-panel" sx={{ p: 4, borderRadius: 4 }}>
                 <Typography variant="h6" sx={{ mb: 3, fontWeight: 700 }}>About</Typography>
@@ -218,19 +218,19 @@ const Profile = () => {
               <Paper className="glass-panel" sx={{ p: 4, borderRadius: 4 }}>
                 <Typography variant="h6" sx={{ mb: 3, fontWeight: 700 }}>Community Stats</Typography>
                 <Grid container spacing={2}>
-                  <Grid item xs={4}>
+                  <Grid size={{ xs: 4 }}>
                     <Box textAlign="center">
                       <Typography variant="h5" sx={{ fontWeight: 800 }}>{currentProfile.posts?.length || 0}</Typography>
                       <Typography variant="caption" color="text.secondary">Posts</Typography>
                     </Box>
                   </Grid>
-                  <Grid item xs={4}>
+                  <Grid size={{ xs: 4 }}>
                     <Box textAlign="center">
                       <Typography variant="h5" sx={{ fontWeight: 800 }}>{currentProfile.followerCount}</Typography>
                       <Typography variant="caption" color="text.secondary">Followers</Typography>
                     </Box>
                   </Grid>
-                  <Grid item xs={4}>
+                  <Grid size={{ xs: 4 }}>
                     <Box textAlign="center">
                       <Typography variant="h5" sx={{ fontWeight: 800 }}>{currentProfile.followingCount}</Typography>
                       <Typography variant="caption" color="text.secondary">Following</Typography>
@@ -242,7 +242,7 @@ const Profile = () => {
           </Grid>
 
           {/* Activity Feed */}
-          <Grid item xs={12} md={8}>
+          <Grid size={{ xs: 12, md: 8 }}>
             <Box sx={{ mb: 4 }}>
               <Tabs
                 value={activeTab}

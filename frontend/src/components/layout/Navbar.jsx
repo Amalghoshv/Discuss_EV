@@ -36,7 +36,7 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { logout } from '../../store/slices/authSlice';
-import { setMobileMenuOpen } from '../../store/slices/uiSlice';
+import { setMobileMenuOpen, openDialog } from '../../store/slices/uiSlice';
 import { fetchNotifications, markAllNotificationsAsRead, markNotificationAsRead } from '../../store/slices/notificationSlice';
 
 const Navbar = () => {
@@ -93,6 +93,7 @@ const Navbar = () => {
     <AppBar
       position="sticky"
       elevation={0}
+      color="transparent"
       className="glass-panel"
       sx={{
         zIndex: theme.zIndex.drawer + 1,
@@ -196,7 +197,7 @@ const Navbar = () => {
                 <Button
                   variant="contained"
                   startIcon={<AddIcon />}
-                  onClick={() => navigate('/create-post')}
+                  onClick={() => dispatch(openDialog({ type: 'createPost' }))}
                   sx={{
                     borderRadius: '20px',
                     px: 3,
@@ -313,14 +314,20 @@ const Navbar = () => {
             </>
           ) : (
             <Box sx={{ display: 'flex', gap: 1 }}>
-              <Button onClick={() => navigate('/login')}>Login</Button>
+              <Button 
+                variant="outlined" 
+                onClick={() => navigate('/login')}
+                sx={{ borderRadius: '20px' }}
+              >
+                Login
+              </Button>
               {!isMobile && (
                 <Button
                   variant="contained"
                   onClick={() => navigate('/register')}
                   sx={{ borderRadius: '20px' }}
                 >
-                  Join
+                  Join Now
                 </Button>
               )}
             </Box>

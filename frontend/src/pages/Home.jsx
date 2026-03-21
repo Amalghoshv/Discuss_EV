@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {
   Container,
-  Grid,
   Typography,
   Box,
   Card,
@@ -17,6 +16,7 @@ import {
   Stack,
   Divider,
 } from '@mui/material';
+import Grid from '@mui/material/Grid';
 import {
   ThumbUp,
   Comment,
@@ -34,7 +34,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { fetchPosts, fetchTrendingPosts } from '../store/slices/postSlice';
 import { fetchEVNews } from '../store/slices/newsSlice';
+import { openDialog } from '../store/slices/uiSlice';
 import LoadingSpinner from '../components/common/LoadingSpinner';
+import PostCard from '../components/common/PostCard';
 
 const Home = () => {
   const theme = useTheme();
@@ -99,8 +101,8 @@ const Home = () => {
         }}
       >
         <Container maxWidth={false} sx={{ px: { xs: 2, md: 4, lg: 6 } }} className="animate-in">
-          <Grid container spacing={4} alignItems="center">
-            <Grid item xs={12} md={7}>
+          <Grid container spacing={4} sx={{ alignItems: 'center' }}>
+            <Grid size={{ xs: 12, md: 7 }}>
               <Typography
                 variant="h1"
                 sx={{
@@ -132,13 +134,13 @@ const Home = () => {
                     onClick={() => navigate('/login')}
                     sx={{ px: 4, py: 1.5, borderRadius: '30px' }}
                   >
-                    Explore
+                    Login
                   </Button>
                 </Stack>
               )}
             </Grid>
             {!isMobile && (
-              <Grid item md={5} sx={{ display: 'flex', justifyContent: 'center' }}>
+              <Grid size={{ md: 5 }} sx={{ display: 'flex', justifyContent: 'center' }}>
                 <Box
                   sx={{
                     position: 'relative',
@@ -167,7 +169,7 @@ const Home = () => {
       <Container maxWidth={false} sx={{ position: 'relative', zIndex: 2, px: { xs: 2, md: 4, lg: 6 } }}>
         <Grid container spacing={4}>
           {/* Main Feed */}
-          <Grid item xs={12} lg={8}>
+          <Grid size={{ xs: 12, lg: 8 }}>
             <Paper
               className="glass-panel"
               sx={{
@@ -207,7 +209,7 @@ const Home = () => {
                   <Typography variant="body2" color="text.secondary">Why not be the first to start a conversation?</Typography>
                   <Button
                     variant="contained"
-                    onClick={() => navigate('/create-post')}
+                    onClick={() => dispatch(openDialog({ type: 'createPost' }))}
                     sx={{ mt: 2 }}
                   >
                     Start Discussion
@@ -219,7 +221,7 @@ const Home = () => {
                 </Typography>
                 <Grid container spacing={3}>
                   {newsArticles.slice(0, 6).map((article, idx) => (
-                    <Grid item xs={12} sm={6} key={idx}>
+                    <Grid size={{ xs: 12, sm: 6 }} key={idx}>
                       <Card className="premium-card" sx={{ height: '100%' }}>
                         <Box
                           sx={{
@@ -260,81 +262,65 @@ const Home = () => {
 
                 <Stack spacing={3}>
                   {posts.map((post) => (
-                    <Card
-                      key={post.id}
-                      className="premium-card animate-in"
-                      onClick={() => navigate(`/post/${post.id}`)}
-                      sx={{ cursor: 'pointer' }}
-                    >
-                      <CardContent sx={{ p: 4 }}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                          <Avatar src={post.author?.avatar} sx={{ width: 40, height: 40, mr: 2 }}>
-                            {post.author?.firstName?.[0]}
-                          </Avatar>
-                          <Box sx={{ flexGrow: 1 }}>
-                            <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
-                              {post.author?.firstName} {post.author?.lastName}
-                            </Typography>
-                            <Typography variant="caption" color="text.secondary">
-                              {formatDate(post.createdAt)}
-                            </Typography>
-                          </Box>
-                          <Chip label={post.category} size="small" variant="outlined" color="primary" />
-                        </Box>
-
-                        <Typography variant="h5" gutterBottom sx={{ fontWeight: 700 }}>
-                          {post.title}
-                        </Typography>
-
-                        <Typography
-                          variant="body1"
-                          color="text.secondary"
-                          sx={{
-                            mb: 3,
-                            display: '-webkit-box',
-                            WebkitLineClamp: 2,
-                            WebkitBoxOrient: 'vertical',
-                            overflow: 'hidden',
-                            lineHeight: 1.6
-                          }}
-                        >
-                          {post.content}
-                        </Typography>
-
-                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                          <Stack direction="row" spacing={3}>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                              <ThumbUp fontSize="small" sx={{ opacity: 0.6 }} />
-                              <Typography variant="caption" sx={{ fontWeight: 600 }}>{post.likeCount}</Typography>
-                            </Box>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                              <Comment fontSize="small" sx={{ opacity: 0.6 }} />
-                              <Typography variant="caption" sx={{ fontWeight: 600 }}>{post.commentCount}</Typography>
-                            </Box>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                              <Visibility fontSize="small" sx={{ opacity: 0.6 }} />
-                              <Typography variant="caption" sx={{ fontWeight: 600 }}>{post.viewCount}</Typography>
-                            </Box>
-                          </Stack>
-                          <Button size="small" endIcon={<KeyboardArrowRight />}>Read More</Button>
-                        </Box>
-                      </CardContent>
-                    </Card>
+                    <PostCard key={post.id} post={post} />
                   ))}
                 </Stack>
               </>
             )}
 
             {posts.length > 0 && (
-              <Box sx={{ mt: 6 }}>
-                <Typography variant="h5" sx={{ mb: 3, fontWeight: 700 }}>World Wide EV Trends</Typography>
+              <Box sx={{ mt: 8 }}>
+                <Typography variant="h5" sx={{ mb: 4, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                  <Public sx={{ color: 'secondary.main' }} /> World Wide EV Trends
+                </Typography>
                 <Grid container spacing={3}>
                   {newsArticles.slice(0, 4).map((article, idx) => (
-                    <Grid item xs={12} sm={6} key={idx}>
-                      <Card className="premium-card">
-                        <CardContent>
-                          <Typography variant="h6" sx={{ fontSize: '0.9rem', fontWeight: 700, mb: 1 }}>{article.title}</Typography>
-                          <Button size="small" href={article.link} target="_blank">View Article</Button>
+                    <Grid size={{ xs: 12, sm: 6 }} key={idx}>
+                      <Card className="premium-card" sx={{ height: '100%', position: 'relative', overflow: 'hidden' }}>
+                        <Box
+                          sx={{
+                            height: 120,
+                            bgcolor: 'action.hover',
+                            backgroundImage: article.thumbnail ? `url(${article.thumbnail})` : 'none',
+                            backgroundSize: 'cover',
+                            backgroundPosition: 'center',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            position: 'relative'
+                          }}
+                        >
+                          {!article.thumbnail && (
+                            <TrendingUp sx={{ fontSize: 40, opacity: 0.1, color: 'primary.main' }} />
+                          )}
+                          <Box sx={{
+                            position: 'absolute',
+                            top: 10,
+                            right: 10,
+                            bgcolor: 'rgba(255,255,255,0.9)',
+                            p: 0.5,
+                            borderRadius: 1,
+                            display: 'flex'
+                          }}>
+                            <TrendingUp sx={{ fontSize: 16, color: 'primary.main' }} />
+                          </Box>
+                        </Box>
+                        <CardContent sx={{ p: 2.5 }}>
+                          <Typography variant="body2" color="primary" sx={{ fontWeight: 700, mb: 1, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                            Global Trend
+                          </Typography>
+                          <Typography variant="h6" sx={{ fontSize: '0.95rem', fontWeight: 700, mb: 1.5, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', lineHeight: 1.4 }}>
+                            {article.title}
+                          </Typography>
+                          <Button
+                            size="small"
+                            href={article.link}
+                            target="_blank"
+                            endIcon={<KeyboardArrowRight />}
+                            sx={{ textTransform: 'none', fontWeight: 700 }}
+                          >
+                            Read Article
+                          </Button>
                         </CardContent>
                       </Card>
                     </Grid>
@@ -345,7 +331,7 @@ const Home = () => {
           </Grid>
 
           {/* Sidebar */}
-          <Grid item xs={12} lg={4}>
+          <Grid size={{ xs: 12, lg: 4 }}>
             <Stack spacing={4}>
               <Paper className="glass-panel" sx={{ p: 3, borderRadius: 4 }}>
                 <Typography variant="h6" sx={{ mb: 2, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -375,17 +361,19 @@ const Home = () => {
                 </Stack>
               </Paper>
 
-              <Card sx={{ p: 1, textAlign: 'center', background: theme.palette.primary.main, color: '#fff' }}>
-                <CardContent>
-                  <Typography variant="h6" gutterBottom>Join the discussion</Typography>
-                  <Typography variant="body2" sx={{ opacity: 0.8, mb: 3 }}>
-                    Share your EV journey with thousands of enthusiasts worldwide.
-                  </Typography>
-                  <Button variant="contained" color="secondary" fullWidth sx={{ borderRadius: '20px' }}>
-                    Create Account
-                  </Button>
-                </CardContent>
-              </Card>
+              {!isAuthenticated && (
+                <Card sx={{ p: 1, textAlign: 'center', background: theme.palette.primary.main, color: '#fff', borderRadius: 4 }}>
+                  <CardContent>
+                    <Typography variant="h6" gutterBottom>Join the discussion</Typography>
+                    <Typography variant="body2" sx={{ opacity: 0.8, mb: 3 }}>
+                      Share your EV journey with thousands of enthusiasts worldwide.
+                    </Typography>
+                    <Button variant="contained" color="secondary" fullWidth sx={{ borderRadius: '20px' }} onClick={() => navigate('/register')}>
+                      Create Account
+                    </Button>
+                  </CardContent>
+                </Card>
+              )}
             </Stack>
           </Grid>
         </Grid>

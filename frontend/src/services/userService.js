@@ -19,6 +19,11 @@ const userService = {
     getUserPosts: async (id, params) => {
         const response = await api.get(`/users/${id}/posts`, { params });
         return response.data;
+    },
+
+    searchUsers: async (q) => {
+        const response = await api.get('/users/search', { params: { q } });
+        return response.data;
     }
 };
 

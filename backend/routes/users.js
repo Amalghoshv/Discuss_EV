@@ -2,8 +2,36 @@ const express = require('express');
 const { authenticateToken, optionalAuth } = require('../middleware/auth');
 const { User, Post, Comment, Follow } = require('../models');
 const { Op } = require('sequelize');
+const bcrypt = require('bcryptjs');
 
 const router = express.Router();
+
+// Search users
+router.get('/search', optionalAuth, async (req, res) => {
+  try {
+    const { q, limit = 20 } = req.query;
+    if (!q) {
+      return res.json({ users: [] });
+    }
+
+    const users = await User.findAll({
+      where: {
+        [Op.or]: [
+          { username: { [Op.iLike]: `%${q}%` } },
+          { firstName: { [Op.iLike]: `%${q}%` } },
+          { lastName: { [Op.iLike]: `%${q}%` } }
+        ]
+      },
+      attributes: ['id', 'username', 'firstName', 'lastName', 'avatar', 'bio'],
+      limit: parseInt(limit)
+    });
+
+    res.json({ users });
+  } catch (error) {
+    console.error('Search users error:', error);
+    res.status(500).json({ message: 'Failed to search users' });
+  }
+});
 
 // Get user profile
 router.get('/:id', optionalAuth, async (req, res) => {
@@ -65,7 +93,7 @@ router.get('/:id', optionalAuth, async (req, res) => {
 // Update user profile
 router.put('/profile', authenticateToken, async (req, res) => {
   try {
-    const { firstName, lastName, bio, preferences } = req.body;
+    const { firstName, lastName, bio, preferences, avatar } = req.body;
     const userId = req.user.id;
 
     const user = await User.findByPk(userId);
@@ -77,7 +105,8 @@ router.put('/profile', authenticateToken, async (req, res) => {
       firstName: firstName || user.firstName,
       lastName: lastName || user.lastName,
       bio: bio || user.bio,
-      preferences: preferences || user.preferences
+      preferences: preferences || user.preferences,
+      avatar: avatar !== undefined ? avatar : user.avatar
     });
 
     res.json({
@@ -87,6 +116,32 @@ router.put('/profile', authenticateToken, async (req, res) => {
   } catch (error) {
     console.error('Update profile error:', error);
     res.status(500).json({ message: 'Failed to update profile' });
+  }
+});
+
+// Change password
+router.put('/password', authenticateToken, async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    const userId = req.user.id;
+
+    const user = await User.findByPk(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const isValid = await bcrypt.compare(currentPassword, user.password);
+    if (!isValid) {
+      return res.status(400).json({ message: 'Invalid current password' });
+    }
+
+    // The User model has a beforeUpdate hook that automatically hashes the password
+    await user.update({ password: newPassword });
+
+    res.json({ message: 'Password updated successfully' });
+  } catch (error) {
+    console.error('Change password error:', error);
+    res.status(500).json({ message: 'Failed to change password' });
   }
 });
 

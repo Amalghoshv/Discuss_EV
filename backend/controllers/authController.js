@@ -1,6 +1,6 @@
 const { validationResult } = require('express-validator');
 const jwt = require('jsonwebtoken');
-const { User } = require('../models');
+const { User, Follow } = require('../models');
 const { Op } = require('sequelize');
 const { generateToken, generateRefreshToken } = require('../utils/jwt');
 
@@ -39,6 +39,26 @@ const register = async (req, res) => {
       firstName,
       lastName
     });
+
+    // Auto-follow official accounts
+    try {
+      const officialUsernames = ['discuss_ev', 'tesla_master', 'ev_trends'];
+      const officialUsers = await User.findAll({
+        where: { username: { [Op.in]: officialUsernames } }
+      });
+
+      if (officialUsers.length > 0) {
+        const followData = officialUsers.map(official => ({
+          followerId: user.id,
+          followedId: official.id
+        }));
+        await Follow.bulkCreate(followData);
+        console.log(`👤 New user ${user.username} auto-followed ${officialUsers.length} official accounts`);
+      }
+    } catch (followError) {
+      console.error('Error auto-following official accounts:', followError);
+      // Don't fail registration if auto-follow fails
+    }
 
     const token = generateToken(user.id);
     const refreshToken = generateRefreshToken(user.id);

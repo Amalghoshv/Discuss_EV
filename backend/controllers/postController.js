@@ -78,11 +78,14 @@ const getPosts = async (req, res) => {
       limit = 10,
       category,
       type,
-      search,
+      search: searchParam,
+      q,
       sortBy = 'createdAt',
       sortOrder = 'DESC',
       tags
     } = req.query;
+
+    const search = searchParam || q;
 
     const offset = (page - 1) * limit;
     const whereClause = { isArchived: false };

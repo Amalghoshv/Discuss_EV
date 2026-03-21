@@ -10,8 +10,8 @@ import {
   Alert,
   InputAdornment,
   IconButton,
-  Grid,
 } from '@mui/material';
+import Grid from '@mui/material/Grid';
 import {
   Visibility,
   VisibilityOff,
@@ -125,7 +125,7 @@ const Register = () => {
 
           <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ width: '100%' }}>
             <Grid container spacing={2}>
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField
                   required
                   fullWidth
@@ -150,7 +150,7 @@ const Register = () => {
                   }}
                 />
               </Grid>
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField
                   required
                   fullWidth

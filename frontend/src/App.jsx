@@ -17,14 +17,13 @@ import customTheme from './theme';
 
 // Pages
 import Home from './pages/Home';
-import Login from './pages/Login';
-import Register from './pages/Register';
+import Auth from './pages/Auth';
 import PostDetail from './pages/PostDetail';
-import CreatePost from './pages/CreatePost';
 import EditPost from './pages/EditPost';
 import Profile from './pages/Profile';
 import Settings from './pages/Settings';
 import Search from './pages/Search';
+import CreatePostDialog from './components/post/CreatePostDialog';
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -91,7 +90,7 @@ const AppContent = () => {
                     path="/login"
                     element={
                       <PublicRoute>
-                        <Login />
+                        <Auth />
                       </PublicRoute>
                     }
                   />
@@ -99,20 +98,12 @@ const AppContent = () => {
                     path="/register"
                     element={
                       <PublicRoute>
-                        <Register />
+                        <Auth />
                       </PublicRoute>
                     }
                   />
 
                   {/* Protected Routes */}
-                  <Route
-                    path="/create-post"
-                    element={
-                      <ProtectedRoute>
-                        <CreatePost />
-                      </ProtectedRoute>
-                    }
-                  />
                   <Route
                     path="/edit-post/:id"
                     element={
@@ -145,6 +136,7 @@ const AppContent = () => {
             </div>
             <Footer />
             <Snackbar />
+            <CreatePostDialog />
           </div>
         </Router>
       </ErrorBoundary>

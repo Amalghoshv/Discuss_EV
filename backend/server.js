@@ -6,7 +6,8 @@ const { createServer } = require('http');
 const { Server } = require('socket.io');
 require('dotenv').config();
 
-const { connectDB } = require('./config/database');
+const { sequelize, connectDB } = require('./config/database');
+const { seedData } = require('./utils/seedData');
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');
 const postRoutes = require('./routes/posts');
@@ -24,7 +25,11 @@ const io = new Server(server, {
 });
 
 // Connect to Database
-connectDB();
+connectDB().then(() => {
+  if (process.env.NODE_ENV === 'development' || !process.env.NODE_ENV) {
+    seedData();
+  }
+});
 
 // Security Middleware
 app.use(helmet());

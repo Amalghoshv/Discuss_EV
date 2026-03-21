@@ -54,6 +54,18 @@ export const updateProfile = createAsyncThunk(
   }
 );
 
+export const changePassword = createAsyncThunk(
+  'auth/changePassword',
+  async (passwordData, { rejectWithValue }) => {
+    try {
+      const response = await authService.changePassword(passwordData);
+      return response;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to change password');
+    }
+  }
+);
+
 export const logout = createAsyncThunk(
   'auth/logout',
   async (_, { rejectWithValue }) => {

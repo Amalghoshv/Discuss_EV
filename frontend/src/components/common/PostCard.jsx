@@ -1,0 +1,94 @@
+import React from 'react';
+import {
+  Card,
+  CardContent,
+  Box,
+  Avatar,
+  Typography,
+  Chip,
+  Stack,
+  Button
+} from '@mui/material';
+import {
+  ThumbUp,
+  Comment,
+  Visibility,
+  KeyboardArrowRight
+} from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
+
+const PostCard = ({ post }) => {
+  const navigate = useNavigate();
+
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    });
+  };
+
+  return (
+    <Card
+      className="premium-card animate-in"
+      onClick={() => navigate(`/post/${post.id}`)}
+      sx={{ cursor: 'pointer' }}
+    >
+      <CardContent sx={{ p: 3 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+          <Avatar src={post.author?.avatar} sx={{ width: 40, height: 40, mr: 2 }}>
+            {post.author?.firstName?.[0]}
+          </Avatar>
+          <Box sx={{ flexGrow: 1 }}>
+            <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
+              {post.author?.firstName} {post.author?.lastName}
+            </Typography>
+            <Typography variant="caption" color="text.secondary">
+              {formatDate(post.createdAt)}
+            </Typography>
+          </Box>
+          <Chip label={post.category} size="small" variant="outlined" color="primary" />
+        </Box>
+
+        <Typography variant="h5" gutterBottom sx={{ fontWeight: 700, fontSize: '1.25rem' }}>
+          {post.title}
+        </Typography>
+
+        <Typography
+          variant="body1"
+          color="text.secondary"
+          sx={{
+            mb: 3,
+            display: '-webkit-box',
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: 'vertical',
+            overflow: 'hidden',
+            lineHeight: 1.6
+          }}
+        >
+          {post.content}
+        </Typography>
+
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <Stack direction="row" spacing={3}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+              <ThumbUp fontSize="small" sx={{ opacity: 0.6 }} />
+              <Typography variant="caption" sx={{ fontWeight: 600 }}>{post.likeCount}</Typography>
+            </Box>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+              <Comment fontSize="small" sx={{ opacity: 0.6 }} />
+              <Typography variant="caption" sx={{ fontWeight: 600 }}>{post.commentCount || 0}</Typography>
+            </Box>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+              <Visibility fontSize="small" sx={{ opacity: 0.6 }} />
+              <Typography variant="caption" sx={{ fontWeight: 600 }}>{post.viewCount}</Typography>
+            </Box>
+          </Stack>
+          <Button size="small" endIcon={<KeyboardArrowRight />}>Read More</Button>
+        </Box>
+      </CardContent>
+    </Card>
+  );
+};
+
+export default PostCard;
