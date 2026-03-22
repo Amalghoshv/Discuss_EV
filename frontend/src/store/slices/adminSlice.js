@@ -38,9 +38,47 @@ export const toggleUserStatus = createAsyncThunk(
   }
 );
 
+export const fetchReports = createAsyncThunk(
+  'admin/fetchReports',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await adminService.getReports();
+      return response.reports;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to fetch reports');
+    }
+  }
+);
+
+export const resolveReport = createAsyncThunk(
+  'admin/resolveReport',
+  async ({ id, status }, { rejectWithValue }) => {
+    try {
+      const response = await adminService.resolveReport(id, status);
+      return response.report;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to resolve report');
+    }
+  }
+);
+
+export const submitReport = createAsyncThunk(
+  'admin/submitReport',
+  async (reportData, { rejectWithValue }) => {
+    try {
+      const response = await api.post('/admin/reports', reportData);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to submit report');
+    }
+  }
+);
+
 const initialState = {
   users: [],
+  reports: [],
   isLoadingUsers: false,
+  isLoadingReports: false,
   error: null,
 };
 
@@ -72,6 +110,24 @@ const adminSlice = createSlice({
         const index = state.users.findIndex(u => u.id === action.payload.id);
         if (index !== -1) {
           state.users[index] = action.payload;
+        }
+      })
+      // Fetch Reports
+      .addCase(fetchReports.pending, (state) => {
+        state.isLoadingReports = true;
+      })
+      .addCase(fetchReports.fulfilled, (state, action) => {
+        state.isLoadingReports = false;
+        state.reports = action.payload;
+      })
+      .addCase(fetchReports.rejected, (state, action) => {
+        state.isLoadingReports = false;
+      })
+      // Resolve Report
+      .addCase(resolveReport.fulfilled, (state, action) => {
+        const index = state.reports.findIndex(r => r.id === action.payload.id);
+        if (index !== -1) {
+          state.reports[index] = action.payload;
         }
       });
   }

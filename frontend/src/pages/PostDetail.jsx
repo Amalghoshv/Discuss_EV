@@ -22,6 +22,7 @@ import {
   Reply,
   PersonAdd,
   PersonRemove,
+  ReportProblem,
 } from '@mui/icons-material';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -229,6 +230,14 @@ const PostDetail = () => {
             <Button startIcon={<Share />}>
               Share
             </Button>
+            <Tooltip title="Report this post">
+              <IconButton 
+                color="warning" 
+                onClick={() => dispatch({ type: 'ui/openDialog', payload: { type: 'report', data: { targetType: 'post', targetId: currentPost.id } } })}
+              >
+                <ReportProblem />
+              </IconButton>
+            </Tooltip>
 
             {/* Edit/Delete buttons for post author */}
             {isAuthenticated && (isAuthor || currentUser?.role === 'admin') && (

@@ -26,7 +26,9 @@ import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import CreatePostDialog from './components/post/CreatePostDialog';
 import EditPostDialog from './components/post/EditPostDialog';
+import ReportDialog from './components/common/ReportDialog';
 import AdminDashboard from './pages/AdminDashboard';
+import RegisterCompany from './pages/RegisterCompany';
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -135,6 +137,12 @@ const AppContent = () => {
 
                   {/* Protected Routes */}
                   <Route
+                    path="/register-company"
+                    element={
+                      <RegisterCompany />
+                    }
+                  />
+                  <Route
                     path="/profile"
                     element={
                       <ProtectedRoute>
@@ -170,6 +178,7 @@ const AppContent = () => {
             <Snackbar />
             <CreatePostDialog />
             <EditPostDialog />
+            <ReportDialog />
           </div>
         </Router>
       </ErrorBoundary>

@@ -14,12 +14,15 @@ import {
   ThumbDown,
   Comment,
   Visibility,
-  KeyboardArrowRight
+  KeyboardArrowRight,
+  ReportProblem
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
 
 const PostCard = ({ post }) => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -100,6 +103,12 @@ const PostCard = ({ post }) => {
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
               <Visibility fontSize="small" sx={{ opacity: 0.6 }} />
               <Typography variant="caption" sx={{ fontWeight: 600 }}>{post.viewCount}</Typography>
+            </Box>
+            <Box 
+              sx={{ display: 'flex', alignItems: 'center', gap: 0.5, cursor: 'pointer', '&:hover': { color: 'warning.main' } }}
+              onClick={(e) => { e.stopPropagation(); dispatch({ type: 'ui/openDialog', payload: { type: 'report', data: { targetType: 'post', targetId: post.id } } }); }}
+            >
+              <ReportProblem fontSize="small" sx={{ opacity: 0.6 }} titleAccess="Report" />
             </Box>
           </Stack>
           <Button size="small" endIcon={<KeyboardArrowRight />}>Read More</Button>

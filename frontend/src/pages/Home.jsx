@@ -392,6 +392,25 @@ const Home = () => {
                 </Stack>
               </Paper>
 
+              <Card sx={{ p: 1, textAlign: 'center', background: 'linear-gradient(135deg, #d84315 0%, #ff8a65 100%)', color: '#fff', borderRadius: 4, boxShadow: 3 }}>
+                <CardContent>
+                  <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, fontWeight: 'bold' }}>
+                    <ElectricCar /> EV Business Owner?
+                  </Typography>
+                  <Typography variant="body2" sx={{ opacity: 0.9, mb: 3 }}>
+                    Register your company officially on DiscussEV to connect with thousands of verified owners and enthusiasts!
+                  </Typography>
+                  <Button 
+                    variant="contained" 
+                    fullWidth 
+                    sx={{ bgcolor: '#fff', color: '#d84315', borderRadius: '20px', fontWeight: 'bold', '&:hover': { bgcolor: '#f5f5f5' } }} 
+                    onClick={() => navigate('/register-company')}
+                  >
+                    Apply for Verification
+                  </Button>
+                </CardContent>
+              </Card>
+
               {!isAuthenticated && (
                 <Card sx={{ p: 1, textAlign: 'center', background: theme.palette.primary.main, color: '#fff', borderRadius: 4 }}>
                   <CardContent>

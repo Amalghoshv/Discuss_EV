@@ -7,6 +7,7 @@ import userReducer from './slices/userSlice';
 import uiReducer from './slices/uiSlice';
 import newsReducer from './slices/newsSlice';
 import adminReducer from './slices/adminSlice';
+import companyReducer from './slices/companySlice';
 
 export const store = configureStore({
   reducer: {
@@ -18,6 +19,7 @@ export const store = configureStore({
     ui: uiReducer,
     news: newsReducer,
     admin: adminReducer,
+    companies: companyReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
