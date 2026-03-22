@@ -19,11 +19,14 @@ import customTheme from './theme';
 import Home from './pages/Home';
 import Auth from './pages/Auth';
 import PostDetail from './pages/PostDetail';
-import EditPost from './pages/EditPost';
 import Profile from './pages/Profile';
 import Settings from './pages/Settings';
 import Search from './pages/Search';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 import CreatePostDialog from './components/post/CreatePostDialog';
+import EditPostDialog from './components/post/EditPostDialog';
+import AdminDashboard from './pages/AdminDashboard';
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -45,6 +48,17 @@ const PublicRoute = ({ children }) => {
   }
 
   return !isAuthenticated ? children : <Navigate to="/" />;
+};
+
+// Admin Route Component
+const AdminRoute = ({ children }) => {
+  const { user, isAuthenticated, isLoading } = useSelector((state) => state.auth);
+
+  if (isLoading) {
+    return <LoadingSpinner />;
+  }
+
+  return isAuthenticated && user?.role === 'admin' ? children : <Navigate to="/" />;
 };
 
 // App Content Component
@@ -102,16 +116,24 @@ const AppContent = () => {
                       </PublicRoute>
                     }
                   />
-
-                  {/* Protected Routes */}
                   <Route
-                    path="/edit-post/:id"
+                    path="/forgot-password"
                     element={
-                      <ProtectedRoute>
-                        <EditPost />
-                      </ProtectedRoute>
+                      <PublicRoute>
+                        <ForgotPassword />
+                      </PublicRoute>
                     }
                   />
+                  <Route
+                    path="/reset-password/:token"
+                    element={
+                      <PublicRoute>
+                        <ResetPassword />
+                      </PublicRoute>
+                    }
+                  />
+
+                  {/* Protected Routes */}
                   <Route
                     path="/profile"
                     element={
@@ -129,6 +151,16 @@ const AppContent = () => {
                     }
                   />
 
+                  {/* Admin Routes */}
+                  <Route
+                    path="/admin"
+                    element={
+                      <AdminRoute>
+                        <AdminDashboard />
+                      </AdminRoute>
+                    }
+                  />
+
                   {/* Catch all route */}
                   <Route path="*" element={<Navigate to="/" />} />
                 </Routes>
@@ -137,6 +169,7 @@ const AppContent = () => {
             <Footer />
             <Snackbar />
             <CreatePostDialog />
+            <EditPostDialog />
           </div>
         </Router>
       </ErrorBoundary>

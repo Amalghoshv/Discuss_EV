@@ -8,7 +8,8 @@ const {
   updatePost,
   deletePost,
   likePost,
-  getTrendingPosts
+  getTrendingPosts,
+  getFeedPosts
 } = require('../controllers/postController');
 
 const router = express.Router();
@@ -50,6 +51,7 @@ const postValidation = [
 router.post('/', authenticateToken, postValidation, createPost);
 router.get('/', optionalAuth, getPosts);
 router.get('/trending', optionalAuth, getTrendingPosts);
+router.get('/feed', authenticateToken, getFeedPosts);
 router.get('/:id', optionalAuth, getPostById);
 router.put('/:id', authenticateToken, postValidation, updatePost);
 router.delete('/:id', authenticateToken, deletePost);

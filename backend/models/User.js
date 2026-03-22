@@ -45,6 +45,24 @@ const User = sequelize.define('User', {
       len: [1, 50]
     }
   },
+  name: {
+    type: DataTypes.VIRTUAL,
+    get() {
+      return `${this.firstName || ''} ${this.lastName || ''}`.trim();
+    }
+  },
+  profile_picture: {
+    type: DataTypes.VIRTUAL,
+    get() {
+      return this.avatar;
+    }
+  },
+  password_hash: {
+    type: DataTypes.VIRTUAL,
+    get() {
+      return this.password;
+    }
+  },
   avatar: {
     type: DataTypes.TEXT,
     allowNull: true
@@ -60,6 +78,10 @@ const User = sequelize.define('User', {
     type: DataTypes.ENUM('user', 'moderator', 'admin'),
     defaultValue: 'user'
   },
+  companyId: {
+    type: DataTypes.UUID,
+    allowNull: true
+  },
   isVerified: {
     type: DataTypes.BOOLEAN,
     defaultValue: false
@@ -69,6 +91,14 @@ const User = sequelize.define('User', {
     defaultValue: true
   },
   lastLogin: {
+    type: DataTypes.DATE,
+    allowNull: true
+  },
+  resetPasswordToken: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  resetPasswordExpires: {
     type: DataTypes.DATE,
     allowNull: true
   },

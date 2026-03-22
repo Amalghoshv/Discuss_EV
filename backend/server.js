@@ -13,6 +13,9 @@ const userRoutes = require('./routes/users');
 const postRoutes = require('./routes/posts');
 const commentRoutes = require('./routes/comments');
 const notificationRoutes = require('./routes/notifications');
+const companyRoutes = require('./routes/companies');
+const adminRoutes = require('./routes/admin');
+const analyticsRoutes = require('./routes/analytics');
 const { authenticateToken } = require('./middleware/auth');
 
 const app = express();
@@ -58,6 +61,9 @@ app.use('/api/users', userRoutes);
 app.use('/api/posts', postRoutes);
 app.use('/api/comments', commentRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/companies', companyRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api/analytics', analyticsRoutes);
 
 // Socket.io for real-time features
 io.use((socket, next) => {

@@ -11,6 +11,7 @@ import {
 } from '@mui/material';
 import {
   ThumbUp,
+  ThumbDown,
   Comment,
   Visibility,
   KeyboardArrowRight
@@ -69,11 +70,28 @@ const PostCard = ({ post }) => {
           {post.content}
         </Typography>
 
+        {post.images && post.images.length > 0 && (
+          <Box sx={{ mb: 3, borderRadius: 3, overflow: 'hidden', maxHeight: 300 }}>
+            <img src={post.images[0]} alt="Post attachment" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          </Box>
+        )}
+
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <Stack direction="row" spacing={3}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-              <ThumbUp fontSize="small" sx={{ opacity: 0.6 }} />
-              <Typography variant="caption" sx={{ fontWeight: 600 }}>{post.likeCount}</Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Box 
+                sx={{ display: 'flex', alignItems: 'center', gap: 0.5, cursor: 'pointer', '&:hover': { color: 'primary.main' } }}
+                onClick={(e) => { e.stopPropagation(); /* logic for upvote here */ }}
+              >
+                <ThumbUp fontSize="small" sx={{ opacity: 0.6 }} titleAccess="Upvote" />
+                <Typography variant="caption" sx={{ fontWeight: 600 }}>{post.likeCount}</Typography>
+              </Box>
+              <Box 
+                sx={{ display: 'flex', alignItems: 'center', gap: 0.5, cursor: 'pointer', '&:hover': { color: 'error.main' } }}
+                onClick={(e) => { e.stopPropagation(); /* logic for downvote here */ }}
+              >
+                <ThumbDown fontSize="small" sx={{ opacity: 0.6 }} titleAccess="Downvote" />
+              </Box>
             </Box>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
               <Comment fontSize="small" sx={{ opacity: 0.6 }} />

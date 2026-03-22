@@ -23,6 +23,7 @@ import {
   Policy as PolicyIcon,
   Star as StarIcon,
   Help as HelpIcon,
+  Security as SecurityIcon,
 } from '@mui/icons-material';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -38,6 +39,7 @@ const Sidebar = () => {
   const location = useLocation();
   
   const { sidebarOpen, mobileMenuOpen } = useSelector((state) => state.ui);
+  const { user } = useSelector((state) => state.auth);
 
   const handleDrawerToggle = () => {
     if (isMobile) {
@@ -160,6 +162,17 @@ const Sidebar = () => {
             <ListItemText primary="Help & Support" />
           </ListItemButton>
         </ListItem>
+
+        {user?.role === 'admin' && (
+          <ListItem disablePadding>
+            <ListItemButton onClick={() => handleNavigation('/admin')}>
+              <ListItemIcon>
+                <SecurityIcon color="error" />
+              </ListItemIcon>
+              <ListItemText primary="Admin Panel" primaryTypographyProps={{ color: 'error', fontWeight: 'bold' }} />
+            </ListItemButton>
+          </ListItem>
+        )}
       </List>
     </Box>
   );

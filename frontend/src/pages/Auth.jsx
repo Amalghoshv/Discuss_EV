@@ -173,6 +173,14 @@ const Auth = () => {
                 >
                   Sign In
                 </Button>
+
+                <Box sx={{ textAlign: 'center', mb: 2 }}>
+                  <Typography variant="body2" color="text.secondary">
+                    <Link component={RouterLink} to="/forgot-password" sx={{ fontWeight: 600, color: 'primary.main', textDecoration: 'none' }}>
+                      Forgot Password?
+                    </Link>
+                  </Typography>
+                </Box>
                 
                 <Box sx={{ textAlign: 'center' }}>
                   <Typography variant="body2" color="text.secondary">

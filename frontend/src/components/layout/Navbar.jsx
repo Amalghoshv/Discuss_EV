@@ -193,6 +193,22 @@ const Navbar = () => {
         <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 0.5, md: 1.5 } }}>
           {isAuthenticated ? (
             <>
+              {user?.role === 'admin' && !isMobile && (
+                <Button
+                  variant="outlined"
+                  color="error"
+                  onClick={() => navigate('/admin')}
+                  sx={{
+                    borderRadius: '20px',
+                    px: 3,
+                    borderWidth: 2,
+                    fontWeight: 'bold',
+                    '&:hover': { borderWidth: 2 }
+                  }}
+                >
+                  Dashboard
+                </Button>
+              )}
               {!isMobile && (
                 <Button
                   variant="contained"

@@ -21,16 +21,15 @@ import CloseIcon from '@mui/icons-material/Close';
 import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
 import { useForm, Controller } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
-import { createPost } from '../../store/slices/postSlice';
+import { updatePost } from '../../store/slices/postSlice';
 import { showSnackbar, closeDialog } from '../../store/slices/uiSlice';
 
-const CreatePostDialog = () => {
+const EditPostDialog = () => {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const { isCreating } = useSelector((state) => state.posts);
-  const { open, type } = useSelector((state) => state.ui.dialog);
-  const isOpen = open && type === 'createPost';
+  const { isUpdating } = useSelector((state) => state.posts);
+  const { open, type, data } = useSelector((state) => state.ui.dialog);
+  const isOpen = open && type === 'editPost';
+  const post = data;
 
   const [tags, setTags] = useState([]);
   const [images, setImages] = useState([]);
@@ -50,19 +49,24 @@ const CreatePostDialog = () => {
     }
   });
 
-  // Reset form when dialog opens
+  // Reset/Hydrate form when dialog opens
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && post) {
       reset({
-        type: 'discussion',
-        category: 'general',
-        title: '',
-        content: '',
+        type: post.type || 'discussion',
+        category: post.category || 'general',
+        title: post.title || '',
+        content: post.content || '',
       });
-      setTags([]);
-      setImages([]);
+      // Extract names from tag array of objects
+      if (post.tagList && post.tagList.length > 0) {
+        setTags(post.tagList.map(t => t.name));
+      } else {
+        setTags([]);
+      }
+      setImages(post.images || []);
     }
-  }, [isOpen, reset]);
+  }, [isOpen, post, reset]);
 
   const categories = [
     { value: 'charging-stations', label: 'Charging Stations' },
@@ -86,33 +90,29 @@ const CreatePostDialog = () => {
   const commonTags = [
     'Tesla', 'BMW i3', 'Nissan Leaf', 'Chevrolet Bolt', 'Audi e-tron',
     'Charging', 'Battery', 'Range', 'Performance', 'Maintenance',
-    'Government Incentives', 'Infrastructure', 'Sustainability',
-    'Electric Grid', 'Solar', 'Home Charging', 'Public Charging',
-    'Fast Charging', 'Level 2', 'DC Fast', 'Supercharger',
   ];
 
   const handleClose = () => {
     dispatch(closeDialog());
   };
 
-  const onSubmit = async (data) => {
+  const onSubmit = async (formData) => {
     try {
       const postData = {
-        ...data,
+        ...formData,
         tags: tags.map(tag => typeof tag === 'string' ? tag : tag.name || tag.label),
         images: images,
       };
 
-      const result = await dispatch(createPost(postData)).unwrap();
+      await dispatch(updatePost({ id: post.id, postData })).unwrap();
       dispatch(showSnackbar({
-        message: 'Post created successfully!',
+        message: 'Post updated successfully!',
         severity: 'success',
       }));
       handleClose();
-      navigate(`/post/${result.id}`);
     } catch (error) {
       dispatch(showSnackbar({
-        message: error || 'Failed to create post',
+        message: error || 'Failed to update post',
         severity: 'error',
       }));
     }
@@ -146,10 +146,10 @@ const CreatePostDialog = () => {
       <DialogTitle sx={{ m: 0, p: 2, pb: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Box>
           <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
-            Create New Post
+            Edit Post
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-            Share your EV experiences, ask questions, or start a discussion.
+            Update your EV experiences, questions, or discussion.
           </Typography>
         </Box>
         <IconButton
@@ -162,7 +162,7 @@ const CreatePostDialog = () => {
       </DialogTitle>
 
       <DialogContent dividers sx={{ p: 3, borderBottom: 'none' }}>
-        <Box component="form" id="create-post-form" onSubmit={handleSubmit(onSubmit)} noValidate>
+        <Box component="form" id="edit-post-form" onSubmit={handleSubmit(onSubmit)} noValidate>
           <Box sx={{ display: 'flex', gap: 2, mb: 2, flexDirection: { xs: 'column', sm: 'row' } }}>
             {/* Post Type */}
             <FormControl fullWidth margin="normal" sx={{ mt: 0 }}>
@@ -185,11 +185,6 @@ const CreatePostDialog = () => {
                   </Select>
                 )}
               />
-              {errors.type && (
-                <Alert severity="error" sx={{ mt: 1, py: 0 }}>
-                  {errors.type.message}
-                </Alert>
-              )}
             </FormControl>
 
             {/* Category */}
@@ -213,11 +208,6 @@ const CreatePostDialog = () => {
                   </Select>
                 )}
               />
-              {errors.category && (
-                <Alert severity="error" sx={{ mt: 1, py: 0 }}>
-                  {errors.category.message}
-                </Alert>
-              )}
             </FormControl>
           </Box>
 
@@ -227,17 +217,9 @@ const CreatePostDialog = () => {
             required
             fullWidth
             label="Post Title"
-            placeholder="Enter a descriptive title for your post"
             {...register('title', {
               required: 'Title is required',
-              minLength: {
-                value: 5,
-                message: 'Title must be at least 5 characters',
-              },
-              maxLength: {
-                value: 200,
-                message: 'Title must be less than 200 characters',
-              },
+              minLength: { value: 5, message: 'Title must be at least 5 characters' },
             })}
             error={!!errors.title}
             helperText={errors.title?.message}
@@ -252,17 +234,9 @@ const CreatePostDialog = () => {
             multiline
             rows={6}
             label="Post Content"
-            placeholder="Share your thoughts, experiences, or questions about electric vehicles..."
             {...register('content', {
               required: 'Content is required',
-              minLength: {
-                value: 10,
-                message: 'Content must be at least 10 characters',
-              },
-              maxLength: {
-                value: 10000,
-                message: 'Content must be less than 10000 characters',
-              },
+              minLength: { value: 10, message: 'Content must be at least 10 characters' },
             })}
             error={!!errors.content}
             helperText={errors.content?.message}
@@ -277,7 +251,7 @@ const CreatePostDialog = () => {
               startIcon={<AddPhotoAlternateIcon />}
               sx={{ borderRadius: 2 }}
             >
-              Attach Images
+              Add Images
               <input
                 type="file"
                 hidden
@@ -333,8 +307,7 @@ const CreatePostDialog = () => {
                 {...params}
                 margin="normal"
                 label="Tags"
-                placeholder="Add tags to help others find your post"
-                helperText="Press Enter to add custom tags"
+                placeholder="Press Enter to add custom tags"
               />
             )}
           />
@@ -342,22 +315,22 @@ const CreatePostDialog = () => {
       </DialogContent>
 
       <DialogActions sx={{ p: 3, pt: 1 }}>
-        <Button onClick={handleClose} variant="outlined" disabled={isCreating} size="large" sx={{ borderRadius: 2 }}>
+        <Button onClick={handleClose} variant="outlined" disabled={isUpdating} size="large" sx={{ borderRadius: 2 }}>
           Cancel
         </Button>
         <Button 
           type="submit" 
-          form="create-post-form" 
+          form="edit-post-form" 
           variant="contained" 
-          disabled={isCreating} 
+          disabled={isUpdating} 
           size="large"
           sx={{ borderRadius: 2, px: 4 }}
         >
-          {isCreating ? 'Creating...' : 'Post Discussion'}
+          {isUpdating ? 'Saving...' : 'Save Changes'}
         </Button>
       </DialogActions>
     </Dialog>
   );
 };
 
-export default CreatePostDialog;
+export default EditPostDialog;

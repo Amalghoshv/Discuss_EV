@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Container,
   Typography,
@@ -25,10 +25,12 @@ import {
 } from '@mui/icons-material';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams, useNavigate } from 'react-router-dom';
-import { fetchPostById, likePost } from '../store/slices/postSlice';
+import { fetchPostById, likePost, deletePost } from '../store/slices/postSlice';
 import { fetchComments } from '../store/slices/commentSlice';
 import { followUser, unfollowUser, fetchUserProfile } from '../store/slices/userSlice';
+import { showSnackbar } from '../store/slices/uiSlice';
 import LoadingSpinner from '../components/common/LoadingSpinner';
+import ConfirmDialog from '../components/common/ConfirmDialog';
 
 const PostDetail = () => {
   const theme = useTheme();
@@ -36,10 +38,12 @@ const PostDetail = () => {
   const navigate = useNavigate();
   const { id } = useParams();
 
-  const { currentPost, isLoading } = useSelector((state) => state.posts);
+  const { currentPost, isLoading, isDeleting } = useSelector((state) => state.posts);
   const { comments, isLoading: commentsLoading } = useSelector((state) => state.comments);
   const { user: currentUser, isAuthenticated } = useSelector((state) => state.auth);
   const { currentProfile, followLoading } = useSelector((state) => state.user);
+
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -84,6 +88,18 @@ const PostDetail = () => {
       hour: '2-digit',
       minute: '2-digit',
     });
+  };
+
+  const handleDelete = async () => {
+    try {
+      await dispatch(deletePost(id)).unwrap();
+      dispatch(showSnackbar({ message: 'Post deleted successfully', severity: 'success' }));
+      setDeleteDialogOpen(false);
+      navigate('/');
+    } catch (error) {
+      dispatch(showSnackbar({ message: error || 'Failed to delete post', severity: 'error' }));
+      setDeleteDialogOpen(false);
+    }
   };
 
   if (isLoading) {
@@ -166,6 +182,17 @@ const PostDetail = () => {
             {currentPost.content}
           </Typography>
 
+          {/* Image Attachments */}
+          {currentPost.images && currentPost.images.length > 0 && (
+            <Box sx={{ mb: 4, display: 'grid', gap: 1, gridTemplateColumns: currentPost.images.length === 1 ? '1fr' : 'repeat(auto-fit, minmax(200px, 1fr))' }}>
+              {currentPost.images.map((img, index) => (
+                <Box key={index} sx={{ borderRadius: 2, overflow: 'hidden', height: currentPost.images.length === 1 ? 400 : 250 }}>
+                  <img src={img} alt={`Attachment ${index + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                </Box>
+              ))}
+            </Box>
+          )}
+
           {/* Tags */}
           {currentPost.tagList && currentPost.tagList.length > 0 && (
             <Box sx={{ mb: 3, display: 'flex', flexWrap: 'wrap', gap: 1 }}>
@@ -204,13 +231,15 @@ const PostDetail = () => {
             </Button>
 
             {/* Edit/Delete buttons for post author */}
-            {isAuthenticated && isAuthor && (
+            {isAuthenticated && (isAuthor || currentUser?.role === 'admin') && (
               <>
                 <Box sx={{ flexGrow: 1 }} />
-                <IconButton onClick={() => navigate(`/edit-post/${currentPost.id}`)}>
-                  <Edit />
-                </IconButton>
-                <IconButton color="error">
+                {isAuthor && (
+                  <IconButton onClick={() => dispatch({ type: 'ui/openDialog', payload: { type: 'editPost', data: currentPost } })}>
+                    <Edit />
+                  </IconButton>
+                )}
+                <IconButton color="error" onClick={() => setDeleteDialogOpen(true)} disabled={isDeleting}>
                   <Delete />
                 </IconButton>
               </>
@@ -279,6 +308,17 @@ const PostDetail = () => {
           )}
         </CardContent>
       </Card>
+
+      <ConfirmDialog
+        open={deleteDialogOpen}
+        title="Delete Post?"
+        content="Are you absolutely sure you want to permanently delete this post? This action cannot be undone and will remove all associated comments."
+        confirmText="Delete Post"
+        cancelText="Cancel"
+        onConfirm={handleDelete}
+        onCancel={() => setDeleteDialogOpen(false)}
+        isPending={isDeleting}
+      />
     </Container>
   );
 };

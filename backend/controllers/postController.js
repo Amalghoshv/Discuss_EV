@@ -28,7 +28,7 @@ const createPost = async (req, res) => {
       });
     }
 
-    const { title, content, type, category, tags } = req.body;
+    const { title, content, type, category, tags, images } = req.body;
     const userId = req.user.id;
 
     const post = await Post.create({
@@ -36,6 +36,7 @@ const createPost = async (req, res) => {
       content,
       type,
       category,
+      images: images || [],
       userId
     });
 
@@ -224,13 +225,14 @@ const updatePost = async (req, res) => {
       return res.status(403).json({ message: 'Not authorized to edit this post' });
     }
 
-    const { title, content, type, category, tags } = req.body;
+    const { title, content, type, category, tags, images } = req.body;
 
     await post.update({
       title: title || post.title,
       content: content || post.content,
       type: type || post.type,
-      category: category || post.category
+      category: category || post.category,
+      images: images || post.images
     });
 
     // Update tags
@@ -337,6 +339,44 @@ const likePost = async (req, res) => {
   }
 };
 
+const getFeedPosts = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { limit = 10, page = 1 } = req.query;
+    const offset = (page - 1) * limit;
+
+    const user = await User.findByPk(userId, {
+      include: [{ model: User, as: 'following', attributes: ['id'], through: { attributes: [] } }]
+    });
+
+    const followingIds = user.following ? user.following.map(f => f.id) : [];
+
+    // Fallback to trending if user doesn't follow anyone yet
+    if (followingIds.length === 0) {
+      return getTrendingPosts(req, res);
+    }
+
+    const posts = await Post.findAll({
+      where: {
+        userId: { [Op.in]: followingIds },
+        isArchived: false
+      },
+      include: [
+        { model: User, as: 'author', attributes: ['id', 'username', 'firstName', 'lastName', 'avatar'] },
+        { model: Tag, as: 'tagList', attributes: ['id', 'name', 'slug'], through: { attributes: [] } }
+      ],
+      order: [['createdAt', 'DESC']],
+      limit: parseInt(limit),
+      offset: parseInt(offset)
+    });
+
+    res.json({ posts });
+  } catch (error) {
+    console.error('Get feed error:', error);
+    res.status(500).json({ message: 'Failed to fetch feed' });
+  }
+};
+
 const getTrendingPosts = async (req, res) => {
   try {
     const { limit = 10 } = req.query;
@@ -378,5 +418,6 @@ module.exports = {
   updatePost,
   deletePost,
   likePost,
-  getTrendingPosts
+  getTrendingPosts,
+  getFeedPosts
 };

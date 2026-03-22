@@ -6,6 +6,16 @@ const Notification = require('./Notification');
 const Follow = require('./Follow');
 const Tag = require('./Tag');
 const PostTag = require('./PostTag');
+const Company = require('./Company');
+const Report = require('./Report');
+
+// Company associations
+Company.hasMany(User, { foreignKey: 'companyId', as: 'employees' });
+User.belongsTo(Company, { foreignKey: 'companyId', as: 'company' });
+
+// Report associations
+User.hasMany(Report, { foreignKey: 'reporterId', as: 'reportsMade' });
+Report.belongsTo(User, { foreignKey: 'reporterId', as: 'reporter' });
 
 // User associations
 User.hasMany(Post, { foreignKey: 'userId', as: 'posts' });
@@ -90,5 +100,7 @@ module.exports = {
   Notification,
   Follow,
   Tag,
-  PostTag
+  PostTag,
+  Company,
+  Report
 };

@@ -6,7 +6,9 @@ const {
   login,
   refreshToken,
   logout,
-  getProfile
+  getProfile,
+  forgotPassword,
+  resetPassword
 } = require('../controllers/authController');
 
 const router = express.Router();
@@ -50,6 +52,8 @@ const loginValidation = [
 // Routes
 router.post('/register', registerValidation, register);
 router.post('/login', loginValidation, login);
+router.post('/forgot-password', forgotPassword);
+router.post('/reset-password/:token', resetPassword);
 router.post('/refresh-token', refreshToken);
 router.post('/logout', authenticateToken, logout);
 router.get('/profile', authenticateToken, getProfile);

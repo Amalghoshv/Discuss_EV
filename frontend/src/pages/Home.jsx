@@ -88,37 +88,37 @@ const Home = () => {
   return (
     <Box sx={{ pb: 8 }}>
       {/* Hero Section */}
-      <Box
-        sx={{
-          position: 'relative',
-          background: theme.palette.mode === 'light'
-            ? 'linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 100%)'
-            : 'linear-gradient(135deg, #0F172A 0%, #1E293B 100%)',
-          pt: { xs: 8, md: 12 },
-          pb: { xs: 12, md: 16 },
-          mb: -10,
-          overflow: 'hidden'
-        }}
-      >
-        <Container maxWidth={false} sx={{ px: { xs: 2, md: 4, lg: 6 } }} className="animate-in">
-          <Grid container spacing={4} sx={{ alignItems: 'center' }}>
-            <Grid size={{ xs: 12, md: 7 }}>
-              <Typography
-                variant="h1"
-                sx={{
-                  fontSize: { xs: '2.5rem', md: '4rem' },
-                  mb: 2,
-                  background: 'linear-gradient(135deg, #2E7D32 0%, #00B8D4 100%)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                }}
-              >
-                Driving the Future <br /> of Conversations
-              </Typography>
-              <Typography variant="h5" color="text.secondary" sx={{ mb: 4, maxWidth: '600px', lineHeight: 1.6 }}>
-                The premier hub for EV owners, enthusiasts, and innovators to discuss charging, maintenance, and the road ahead.
-              </Typography>
-              {!isAuthenticated && (
+      {!isAuthenticated && (
+        <Box
+          sx={{
+            position: 'relative',
+            background: theme.palette.mode === 'light'
+              ? 'linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 100%)'
+              : 'linear-gradient(135deg, #0F172A 0%, #1E293B 100%)',
+            pt: { xs: 8, md: 12 },
+            pb: { xs: 12, md: 16 },
+            mb: -10,
+            overflow: 'hidden'
+          }}
+        >
+          <Container maxWidth={false} sx={{ px: { xs: 2, md: 4, lg: 6 } }} className="animate-in">
+            <Grid container spacing={4} sx={{ alignItems: 'center' }}>
+              <Grid size={{ xs: 12, md: 7 }}>
+                <Typography
+                  variant="h1"
+                  sx={{
+                    fontSize: { xs: '2.5rem', md: '4rem' },
+                    mb: 2,
+                    background: 'linear-gradient(135deg, #2E7D32 0%, #00B8D4 100%)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                  }}
+                >
+                  Driving the Future <br /> of Conversations
+                </Typography>
+                <Typography variant="h5" color="text.secondary" sx={{ mb: 4, maxWidth: '600px', lineHeight: 1.6 }}>
+                  The premier hub for EV owners, enthusiasts, and innovators to discuss charging, maintenance, and the road ahead.
+                </Typography>
                 <Stack direction="row" spacing={2}>
                   <Button
                     variant="contained"
@@ -137,39 +137,70 @@ const Home = () => {
                     Login
                   </Button>
                 </Stack>
+              </Grid>
+              {!isMobile && (
+                <Grid size={{ md: 5 }} sx={{ display: 'flex', justifyContent: 'center' }}>
+                  <Box
+                    sx={{
+                      position: 'relative',
+                      '&::after': {
+                        content: '""',
+                        position: 'absolute',
+                        top: '10%',
+                        left: '10%',
+                        width: '80%',
+                        height: '80%',
+                        background: theme.palette.primary.main,
+                        filter: 'blur(100px)',
+                        opacity: 0.2,
+                        zIndex: 0
+                      }
+                    }}
+                  >
+                    <ElectricCar sx={{ fontSize: '300px', color: theme.palette.primary.main, opacity: 0.1, transform: 'rotate(-20deg)' }} />
+                  </Box>
+                </Grid>
               )}
             </Grid>
-            {!isMobile && (
-              <Grid size={{ md: 5 }} sx={{ display: 'flex', justifyContent: 'center' }}>
-                <Box
-                  sx={{
-                    position: 'relative',
-                    '&::after': {
-                      content: '""',
-                      position: 'absolute',
-                      top: '10%',
-                      left: '10%',
-                      width: '80%',
-                      height: '80%',
-                      background: theme.palette.primary.main,
-                      filter: 'blur(100px)',
-                      opacity: 0.2,
-                      zIndex: 0
-                    }
-                  }}
-                >
-                  <ElectricCar sx={{ fontSize: '300px', color: theme.palette.primary.main, opacity: 0.1, transform: 'rotate(-20deg)' }} />
-                </Box>
-              </Grid>
-            )}
-          </Grid>
-        </Container>
-      </Box>
+          </Container>
+        </Box>
+      )}
 
-      <Container maxWidth={false} sx={{ position: 'relative', zIndex: 2, px: { xs: 2, md: 4, lg: 6 } }}>
+      <Container maxWidth={false} sx={{ position: 'relative', zIndex: 2, px: { xs: 2, md: 4, lg: 6 }, pt: isAuthenticated ? 4 : 0 }}>
         <Grid container spacing={4}>
           {/* Main Feed */}
           <Grid size={{ xs: 12, lg: 8 }}>
+            {/* Facebook-style Create Post Card */}
+            {isAuthenticated && (
+              <Card className="premium-card animate-in" sx={{ mb: 4, borderRadius: 4, p: { xs: 2, md: 3 } }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                  <Avatar sx={{ width: 44, height: 44, cursor: 'pointer' }} onClick={() => navigate('/profile')} />
+                  <Box 
+                    sx={{ 
+                      flexGrow: 1, 
+                      bgcolor: 'action.hover', 
+                      p: 1.5, 
+                      px: 2.5,
+                      borderRadius: '50px',
+                      cursor: 'text',
+                      color: 'text.secondary',
+                      transition: 'background-color 0.2s',
+                      '&:hover': { bgcolor: 'action.selected' }
+                    }}
+                    onClick={() => dispatch(openDialog({ type: 'createPost' }))}
+                  >
+                    What's on your mind regarding EVs?
+                  </Box>
+                </Box>
+                <Divider sx={{ my: 2 }} />
+                <Box sx={{ display: 'flex', justifyContent: 'space-around' }}>
+                   <Button startIcon={<Article color="primary" />} sx={{ textTransform: 'none', fontWeight: 600, borderRadius: 2, px: { xs: 1, md: 3 } }} onClick={() => dispatch(openDialog({ type: 'createPost' }))}>Discussion</Button>
+                   <Button startIcon={<ElectricCar color="secondary" />} sx={{ textTransform: 'none', fontWeight: 600, borderRadius: 2, px: { xs: 1, md: 3 } }} onClick={() => dispatch(openDialog({ type: 'createPost' }))}>Review</Button>
+                   <Button startIcon={<ChargingStation color="success" />} sx={{ textTransform: 'none', fontWeight: 600, borderRadius: 2, px: { xs: 1, md: 3 } }} onClick={() => dispatch(openDialog({ type: 'createPost' }))}>Charging</Button>
+                </Box>
+              </Card>
+            )}
+
             <Paper
               className="glass-panel"
               sx={{

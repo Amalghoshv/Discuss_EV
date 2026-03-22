@@ -50,6 +50,14 @@ const Post = sequelize.define('Post', {
     type: DataTypes.JSON,
     defaultValue: []
   },
+  media_url: {
+    type: DataTypes.VIRTUAL,
+    get() {
+      const imgs = this.images || [];
+      const vids = this.videos || [];
+      return imgs[0] || vids[0] || null;
+    }
+  },
   isPinned: {
     type: DataTypes.BOOLEAN,
     defaultValue: false
