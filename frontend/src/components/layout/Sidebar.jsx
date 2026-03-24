@@ -24,6 +24,7 @@ import {
   Star as StarIcon,
   Help as HelpIcon,
   Security as SecurityIcon,
+  BarChart as AnalyticsIcon,
 } from '@mui/icons-material';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -164,14 +165,24 @@ const Sidebar = () => {
         </ListItem>
 
         {user?.role === 'admin' && (
-          <ListItem disablePadding>
-            <ListItemButton onClick={() => handleNavigation('/admin')}>
-              <ListItemIcon>
-                <SecurityIcon color="error" />
-              </ListItemIcon>
-              <ListItemText primary="Admin Panel" primaryTypographyProps={{ color: 'error', fontWeight: 'bold' }} />
-            </ListItemButton>
-          </ListItem>
+          <>
+            <ListItem disablePadding>
+              <ListItemButton onClick={() => handleNavigation('/admin')}>
+                <ListItemIcon>
+                  <SecurityIcon color="error" />
+                </ListItemIcon>
+                <ListItemText primary="Admin Panel" primaryTypographyProps={{ color: 'error', fontWeight: 'bold' }} />
+              </ListItemButton>
+            </ListItem>
+            <ListItem disablePadding>
+              <ListItemButton onClick={() => handleNavigation('/admin/analytics')}>
+                <ListItemIcon>
+                  <AnalyticsIcon color="primary" />
+                </ListItemIcon>
+                <ListItemText primary="Analytics Dashboard" primaryTypographyProps={{ color: 'primary', fontWeight: 'bold' }} />
+              </ListItemButton>
+            </ListItem>
+          </>
         )}
       </List>
     </Box>
@@ -183,8 +194,12 @@ const Sidebar = () => {
       open={isMobile ? mobileMenuOpen : sidebarOpen}
       onClose={handleDrawerToggle}
       sx={{
-        width: drawerWidth,
+        width: (isMobile ? mobileMenuOpen : sidebarOpen) ? drawerWidth : 0,
         flexShrink: 0,
+        transition: theme.transitions.create('width', {
+          easing: theme.transitions.easing.sharp,
+          duration: theme.transitions.duration.leavingScreen,
+        }),
         '& .MuiDrawer-paper': {
           width: drawerWidth,
           boxSizing: 'border-box',

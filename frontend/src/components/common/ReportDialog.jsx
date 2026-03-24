@@ -28,13 +28,13 @@ const REPORT_REASONS = [
 
 const ReportDialog = () => {
   const dispatch = useDispatch();
-  const { dialogOpen, dialogType, dialogData } = useSelector((state) => state.ui);
+  const { dialog } = useSelector((state) => state.ui);
   const [selectedReason, setSelectedReason] = useState(REPORT_REASONS[0]);
   const [customReason, setCustomReason] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // dialogData should contain { targetType: 'post' | 'comment' | 'user', targetId: 'uuid' }
-  const isOpen = dialogOpen && dialogType === 'report';
+  // dialog.data should contain { targetType: 'post' | 'comment' | 'user', targetId: 'uuid' }
+  const isOpen = dialog.open && dialog.type === 'report';
 
   const handleClose = () => {
     dispatch(closeDialog());
@@ -55,8 +55,8 @@ const ReportDialog = () => {
     setIsSubmitting(true);
     try {
       await dispatch(submitReport({
-        targetType: dialogData?.targetType || 'post',
-        targetId: dialogData?.targetId,
+        targetType: dialog.data?.targetType || 'post',
+        targetId: dialog.data?.targetId,
         reason: finalReason
       })).unwrap();
       

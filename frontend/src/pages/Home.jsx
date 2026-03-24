@@ -15,6 +15,8 @@ import {
   Paper,
   Stack,
   Divider,
+  Tabs,
+  Tab,
 } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import {
@@ -32,7 +34,7 @@ import {
 } from '@mui/icons-material';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { fetchPosts, fetchTrendingPosts } from '../store/slices/postSlice';
+import { fetchPosts, fetchTrendingPosts, fetchFeedPosts } from '../store/slices/postSlice';
 import { fetchEVNews } from '../store/slices/newsSlice';
 import { openDialog } from '../store/slices/uiSlice';
 import LoadingSpinner from '../components/common/LoadingSpinner';
@@ -44,17 +46,24 @@ const Home = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const { posts, trendingPosts, isLoading } = useSelector((state) => state.posts);
+  const { posts, trendingPosts, feedPosts, isLoading } = useSelector((state) => state.posts);
   const { articles: newsArticles, isLoading: isNewsLoading } = useSelector((state) => state.news);
   const { isAuthenticated } = useSelector((state) => state.auth);
 
   const [selectedCategory, setSelectedCategory] = useState('');
+  const [feedTab, setFeedTab] = useState(0);
 
   useEffect(() => {
     dispatch(fetchPosts({ page: 1, limit: 10 }));
     dispatch(fetchTrendingPosts(5));
     dispatch(fetchEVNews());
   }, [dispatch]);
+
+  useEffect(() => {
+    if (isAuthenticated && feedTab === 1) {
+      dispatch(fetchFeedPosts({ page: 1, limit: 10 }));
+    }
+  }, [dispatch, isAuthenticated, feedTab]);
 
   const categories = [
     { id: 'charging-stations', label: 'Charging', icon: <ChargingStation /> },
@@ -81,7 +90,9 @@ const Home = () => {
     });
   };
 
-  if (isLoading && posts.length === 0) {
+  const displayPosts = feedTab === 1 ? (feedPosts || []) : posts;
+
+  if (isLoading && displayPosts.length === 0) {
     return <LoadingSpinner message="Igniting motors..." />;
   }
 
@@ -233,7 +244,16 @@ const Home = () => {
               ))}
             </Paper>
 
-            {posts.length === 0 && !isLoading ? (
+            {isAuthenticated && (
+              <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
+                <Tabs value={feedTab} onChange={(e, v) => setFeedTab(v)}>
+                  <Tab label="Global Feed" />
+                  <Tab label="For You" />
+                </Tabs>
+              </Box>
+            )}
+
+            {displayPosts.length === 0 && !isLoading ? (
               <Box className="animate-in">
                 <Paper sx={{ p: 4, textAlign: 'center', borderRadius: 4, mb: 4, bgcolor: 'action.hover' }}>
                   <Typography variant="h6" gutterBottom>No community posts yet.</Typography>
@@ -292,14 +312,14 @@ const Home = () => {
                 </Typography>
 
                 <Stack spacing={3}>
-                  {posts.map((post) => (
+                  {displayPosts.map((post) => (
                     <PostCard key={post.id} post={post} />
                   ))}
                 </Stack>
               </>
             )}
 
-            {posts.length > 0 && (
+            {displayPosts.length > 0 && (
               <Box sx={{ mt: 8 }}>
                 <Typography variant="h5" sx={{ mb: 4, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 1.5 }}>
                   <Public sx={{ color: 'secondary.main' }} /> World Wide EV Trends
@@ -392,19 +412,46 @@ const Home = () => {
                 </Stack>
               </Paper>
 
-              <Card sx={{ p: 1, textAlign: 'center', background: 'linear-gradient(135deg, #d84315 0%, #ff8a65 100%)', color: '#fff', borderRadius: 4, boxShadow: 3 }}>
-                <CardContent>
-                  <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, fontWeight: 'bold' }}>
-                    <ElectricCar /> EV Business Owner?
+              <Card
+                sx={{
+                  borderRadius: 3,
+                  border: '1px solid',
+                  borderColor: theme.palette.mode === 'light' ? '#FFE0B2' : 'rgba(255,138,101,0.3)',
+                  bgcolor: theme.palette.mode === 'light' ? '#FFF8F5' : 'rgba(216,67,21,0.08)',
+                  boxShadow: '0 4px 20px rgba(216,67,21,0.08)',
+                  overflow: 'hidden',
+                }}
+              >
+                {/* Accent bar */}
+                <Box sx={{ height: 4, background: 'linear-gradient(90deg, #d84315, #ff8a65)' }} />
+                <CardContent sx={{ p: 3 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2 }}>
+                    <Box sx={{
+                      width: 40, height: 40, borderRadius: '8px',
+                      background: 'linear-gradient(135deg, #d84315, #ff8a65)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    }}>
+                      <ElectricCar sx={{ fontSize: 22, color: '#fff' }} />
+                    </Box>
+                    <Typography variant="h6" sx={{ fontWeight: 700, fontSize: '1rem' }}>
+                      EV Business Owner?
+                    </Typography>
+                  </Box>
+                  <Typography variant="body2" color="text.secondary" sx={{ mb: 2.5, lineHeight: 1.65 }}>
+                    Register your company on DiscussEV to connect with thousands of verified owners and enthusiasts.
                   </Typography>
-                  <Typography variant="body2" sx={{ opacity: 0.9, mb: 3 }}>
-                    Register your company officially on DiscussEV to connect with thousands of verified owners and enthusiasts!
-                  </Typography>
-                  <Button 
-                    variant="contained" 
-                    fullWidth 
-                    sx={{ bgcolor: '#fff', color: '#d84315', borderRadius: '20px', fontWeight: 'bold', '&:hover': { bgcolor: '#f5f5f5' } }} 
+                  <Button
+                    variant="contained"
+                    fullWidth
                     onClick={() => navigate('/register-company')}
+                    sx={{
+                      background: 'linear-gradient(135deg, #d84315, #ff8a65)',
+                      borderRadius: '12px',
+                      fontWeight: 700,
+                      textTransform: 'none',
+                      boxShadow: '0 4px 12px rgba(216,67,21,0.3)',
+                      '&:hover': { boxShadow: '0 6px 18px rgba(216,67,21,0.45)' },
+                    }}
                   >
                     Apply for Verification
                   </Button>
@@ -412,13 +459,47 @@ const Home = () => {
               </Card>
 
               {!isAuthenticated && (
-                <Card sx={{ p: 1, textAlign: 'center', background: theme.palette.primary.main, color: '#fff', borderRadius: 4 }}>
-                  <CardContent>
-                    <Typography variant="h6" gutterBottom>Join the discussion</Typography>
-                    <Typography variant="body2" sx={{ opacity: 0.8, mb: 3 }}>
+                <Card
+                  sx={{
+                    borderRadius: 3,
+                    border: '1px solid',
+                    borderColor: theme.palette.mode === 'light' ? '#C8E6C9' : 'rgba(46,125,50,0.3)',
+                    bgcolor: theme.palette.mode === 'light' ? '#F1F8E9' : 'rgba(46,125,50,0.08)',
+                    boxShadow: '0 4px 20px rgba(46,125,50,0.08)',
+                    overflow: 'hidden',
+                  }}
+                >
+                  {/* Accent bar */}
+                  <Box sx={{ height: 4, background: 'linear-gradient(90deg, #2E7D32, #66BB6A)' }} />
+                  <CardContent sx={{ p: 3 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2 }}>
+                      <Box sx={{
+                        width: 40, height: 40, borderRadius: '8px',
+                        background: 'linear-gradient(135deg, #2E7D32, #66BB6A)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      }}>
+                        <ChargingStation sx={{ fontSize: 22, color: '#fff' }} />
+                      </Box>
+                      <Typography variant="h6" sx={{ fontWeight: 700, fontSize: '1rem' }}>
+                        Join the Discussion
+                      </Typography>
+                    </Box>
+                    <Typography variant="body2" color="text.secondary" sx={{ mb: 2.5, lineHeight: 1.65 }}>
                       Share your EV journey with thousands of enthusiasts worldwide.
                     </Typography>
-                    <Button variant="contained" color="secondary" fullWidth sx={{ borderRadius: '20px' }} onClick={() => navigate('/register')}>
+                    <Button
+                      variant="contained"
+                      fullWidth
+                      onClick={() => navigate('/register')}
+                      sx={{
+                        background: 'linear-gradient(135deg, #2E7D32, #66BB6A)',
+                        borderRadius: '12px',
+                        fontWeight: 700,
+                        textTransform: 'none',
+                        boxShadow: '0 4px 12px rgba(46,125,50,0.25)',
+                        '&:hover': { boxShadow: '0 6px 18px rgba(46,125,50,0.4)' },
+                      }}
+                    >
                       Create Account
                     </Button>
                   </CardContent>

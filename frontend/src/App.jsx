@@ -29,6 +29,7 @@ import EditPostDialog from './components/post/EditPostDialog';
 import CreateCommentDialog from './components/post/CreateCommentDialog';
 import ReportDialog from './components/common/ReportDialog';
 import AdminDashboard from './pages/AdminDashboard';
+import AnalyticsDashboard from './pages/AnalyticsDashboard';
 import RegisterCompany from './pages/RegisterCompany';
 
 // Protected Route Component
@@ -166,6 +167,14 @@ const AppContent = () => {
                     element={
                       <AdminRoute>
                         <AdminDashboard />
+                      </AdminRoute>
+                    }
+                  />
+                  <Route
+                    path="/admin/analytics"
+                    element={
+                      <AdminRoute>
+                        <AnalyticsDashboard />
                       </AdminRoute>
                     }
                   />

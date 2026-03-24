@@ -14,6 +14,18 @@ export const fetchPosts = createAsyncThunk(
   }
 );
 
+export const fetchFeedPosts = createAsyncThunk(
+  'posts/fetchFeedPosts',
+  async (params, { rejectWithValue }) => {
+    try {
+      const response = await postService.getFeedPosts(params);
+      return response;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to fetch feed posts');
+    }
+  }
+);
+
 export const fetchPostById = createAsyncThunk(
   'posts/fetchPostById',
   async (id, { rejectWithValue }) => {
@@ -88,6 +100,7 @@ export const fetchTrendingPosts = createAsyncThunk(
 
 const initialState = {
   posts: [],
+  feedPosts: [],
   currentPost: null,
   trendingPosts: [],
   pagination: {
@@ -150,6 +163,20 @@ const postSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchPosts.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
+      })
+      // Fetch Feed Posts
+      .addCase(fetchFeedPosts.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(fetchFeedPosts.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.feedPosts = action.payload.posts || [];
+        state.error = null;
+      })
+      .addCase(fetchFeedPosts.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
       })

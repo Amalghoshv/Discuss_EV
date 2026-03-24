@@ -24,13 +24,14 @@ import {
   PersonAdd,
   PersonRemove,
   ReportProblem,
+  Flag,
 } from '@mui/icons-material';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams, useNavigate } from 'react-router-dom';
 import { fetchPostById, likePost, deletePost } from '../store/slices/postSlice';
 import { fetchComments } from '../store/slices/commentSlice';
 import { followUser, unfollowUser, fetchUserProfile } from '../store/slices/userSlice';
-import { showSnackbar } from '../store/slices/uiSlice';
+import { showSnackbar, openDialog } from '../store/slices/uiSlice';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import ConfirmDialog from '../components/common/ConfirmDialog';
 
@@ -101,6 +102,18 @@ const PostDetail = () => {
     } catch (error) {
       dispatch(showSnackbar({ message: error || 'Failed to delete post', severity: 'error' }));
       setDeleteDialogOpen(false);
+    }
+  };
+
+  const handleShare = () => {
+    if (navigator.share) {
+      navigator.share({
+        title: currentPost?.title || 'Discuss EV Post',
+        url: window.location.href,
+      }).catch(console.error);
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+      dispatch(showSnackbar({ message: 'Link copied to clipboard', severity: 'success' }));
     }
   };
 
@@ -228,17 +241,19 @@ const PostDetail = () => {
             <Button startIcon={<Visibility />}>
               {currentPost.viewCount} Views
             </Button>
-            <Button startIcon={<Share />}>
+            <Button startIcon={<Share />} onClick={handleShare}>
               Share
             </Button>
-            <Tooltip title="Report this post">
-              <IconButton 
-                color="warning" 
-                onClick={() => dispatch({ type: 'ui/openDialog', payload: { type: 'report', data: { targetType: 'post', targetId: currentPost.id } } })}
-              >
-                <ReportProblem />
-              </IconButton>
-            </Tooltip>
+            {isAuthenticated && currentUser?.id !== currentPost.author?.id && (
+              <Tooltip title="Report this post">
+                <IconButton 
+                  color="warning" 
+                  onClick={() => dispatch(openDialog({ type: 'report', data: { targetType: 'post', targetId: currentPost.id } }))}
+                >
+                  <Flag />
+                </IconButton>
+              </Tooltip>
+            )}
 
             {/* Edit/Delete buttons for post author */}
             {isAuthenticated && (isAuthor || currentUser?.role === 'admin') && (
@@ -308,6 +323,17 @@ const PostDetail = () => {
                       {formatDate(comment.createdAt)}
                     </Typography>
                   </Box>
+                  {isAuthenticated && currentUser?.id !== comment.author?.id && (
+                    <Tooltip title="Report this comment">
+                      <IconButton
+                        size="small"
+                        color="warning"
+                        onClick={() => dispatch(openDialog({ type: 'report', data: { targetType: 'comment', targetId: comment.id } }))}
+                      >
+                        <Flag fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                  )}
                 </Box>
                 <Typography variant="body2" sx={{ ml: 5, whiteSpace: 'pre-wrap' }}>
                   {comment.content}

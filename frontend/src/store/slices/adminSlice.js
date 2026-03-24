@@ -66,8 +66,8 @@ export const submitReport = createAsyncThunk(
   'admin/submitReport',
   async (reportData, { rejectWithValue }) => {
     try {
-      const response = await api.post('/admin/reports', reportData);
-      return response.data;
+      const response = await adminService.submitReport(reportData);
+      return response.report;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Failed to submit report');
     }

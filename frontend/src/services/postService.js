@@ -11,6 +11,11 @@ const postService = {
     return response.data;
   },
 
+  getFeedPosts: async (params = {}) => {
+    const response = await api.get('/posts/feed', { params });
+    return response.data;
+  },
+
   createPost: async (postData) => {
     const response = await api.post('/posts', postData);
     return response.data;
