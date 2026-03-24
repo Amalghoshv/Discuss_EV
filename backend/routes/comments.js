@@ -1,7 +1,7 @@
 const express = require('express');
 const { body } = require('express-validator');
 const { authenticateToken } = require('../middleware/auth');
-const { Comment, User, Post } = require('../models');
+const { Comment, User, Post, Notification } = require('../models');
 
 const router = express.Router();
 
@@ -56,6 +56,31 @@ router.post('/', authenticateToken, commentValidation, async (req, res) => {
         }
       ]
     });
+
+    // Notify post author (skip if commenter is the author)
+    if (post.userId !== userId) {
+      try {
+        const commenter = await User.findByPk(userId, {
+          attributes: ['firstName', 'lastName', 'username']
+        });
+        const shortTitle = post.title.length > 50
+          ? post.title.slice(0, 50) + '...'
+          : post.title;
+        await Notification.create({
+          userId: post.userId,
+          fromUserId: userId,
+          postId: post.id,
+          commentId: comment.id,
+          type: 'comment',
+          title: 'New comment on your post',
+          message: `${commenter.firstName} ${commenter.lastName} commented on "${shortTitle}"`,
+          metadata: { postId: post.id, commentId: comment.id }
+        });
+      } catch (notifErr) {
+        console.error('Notification creation error (comment):', notifErr);
+        // Non-fatal — don't abort the response
+      }
+    }
 
     res.status(201).json({
       message: 'Comment created successfully',

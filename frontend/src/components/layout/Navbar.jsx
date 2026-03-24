@@ -58,9 +58,19 @@ const Navbar = () => {
 
   const handleNotifMenuOpen = (event) => {
     setNotifAnchorEl(event.currentTarget);
-    dispatch(fetchNotifications({ limit: 5 }));
+    dispatch(fetchNotifications({ limit: 10 }));
   };
   const handleNotifMenuClose = () => setNotifAnchorEl(null);
+
+  // Poll unread count every 30 seconds while authenticated
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    dispatch(fetchNotifications({ limit: 20 }));
+    const interval = setInterval(() => {
+      dispatch(fetchNotifications({ limit: 20 }));
+    }, 30000);
+    return () => clearInterval(interval);
+  }, [dispatch, isAuthenticated]);
 
   const handleMarkAllRead = () => {
     dispatch(markAllNotificationsAsRead());
@@ -72,7 +82,9 @@ const Navbar = () => {
       dispatch(markNotificationAsRead(notif.id));
     }
     handleNotifMenuClose();
-    // Navigate based on notification type if needed
+    // Navigate to the related post
+    const postId = notif.metadata?.postId || notif.postId;
+    if (postId) navigate(`/post/${postId}`);
   };
 
   const handleLogout = () => {
@@ -270,7 +282,9 @@ const Navbar = () => {
                         }}
                       >
                         <ListItemAvatar>
-                          <Avatar src={notif.sender?.avatar}>{notif.sender?.firstName?.[0]}</Avatar>
+                          <Avatar src={notif.fromUser?.avatar}>
+                            {notif.fromUser?.firstName?.[0]}
+                          </Avatar>
                         </ListItemAvatar>
                         <ListItemText
                           primary={notif.message}

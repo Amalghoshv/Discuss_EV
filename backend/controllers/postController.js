@@ -1,5 +1,5 @@
 const { validationResult } = require('express-validator');
-const { Post, User, Comment, Reaction, Tag, PostTag } = require('../models');
+const { Post, User, Comment, Reaction, Tag, PostTag, Notification } = require('../models');
 const { Op } = require('sequelize');
 
 const handleTags = async (post, tags) => {
@@ -331,6 +331,30 @@ const likePost = async (req, res) => {
         type
       });
       await post.increment('likeCount');
+
+      // Notify post author (skip self-likes)
+      if (post.userId !== userId) {
+        try {
+          const liker = await User.findByPk(userId, {
+            attributes: ['firstName', 'lastName']
+          });
+          const shortTitle = post.title.length > 50
+            ? post.title.slice(0, 50) + '...'
+            : post.title;
+          await Notification.create({
+            userId: post.userId,
+            fromUserId: userId,
+            postId: post.id,
+            type: 'reaction',
+            title: 'Someone liked your post',
+            message: `${liker.firstName} ${liker.lastName} liked "${shortTitle}"`,
+            metadata: { postId: post.id }
+          });
+        } catch (notifErr) {
+          console.error('Notification creation error (like):', notifErr);
+        }
+      }
+
       return res.json({ message: 'Post liked', liked: true, type });
     }
   } catch (error) {

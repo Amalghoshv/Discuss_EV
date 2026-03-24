@@ -7,6 +7,18 @@ const Notification = sequelize.define('Notification', {
     defaultValue: DataTypes.UUIDV4,
     primaryKey: true
   },
+  fromUserId: {
+    type: DataTypes.UUID,
+    allowNull: true
+  },
+  postId: {
+    type: DataTypes.UUID,
+    allowNull: true
+  },
+  commentId: {
+    type: DataTypes.UUID,
+    allowNull: true
+  },
   type: {
     type: DataTypes.ENUM(
       'comment',
@@ -42,18 +54,11 @@ const Notification = sequelize.define('Notification', {
 }, {
   timestamps: true,
   indexes: [
-    {
-      fields: ['userId']
-    },
-    {
-      fields: ['isRead']
-    },
-    {
-      fields: ['createdAt']
-    },
-    {
-      fields: ['type']
-    }
+    { fields: ['userId'] },
+    { fields: ['fromUserId'] },
+    { fields: ['isRead'] },
+    { fields: ['createdAt'] },
+    { fields: ['type'] }
   ]
 });
 

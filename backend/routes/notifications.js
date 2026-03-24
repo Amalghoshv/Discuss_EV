@@ -1,6 +1,6 @@
 const express = require('express');
 const { authenticateToken } = require('../middleware/auth');
-const { Notification } = require('../models');
+const { Notification, User } = require('../models');
 
 const router = express.Router();
 
@@ -19,6 +19,14 @@ router.get('/', authenticateToken, async (req, res) => {
 
     const { count, rows: notifications } = await Notification.findAndCountAll({
       where: whereClause,
+      include: [
+        {
+          model: User,
+          as: 'fromUser',
+          attributes: ['id', 'firstName', 'lastName', 'avatar'],
+          required: false
+        }
+      ],
       order: [['createdAt', 'DESC']],
       limit: parseInt(limit),
       offset: parseInt(offset)

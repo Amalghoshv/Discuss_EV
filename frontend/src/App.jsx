@@ -26,6 +26,7 @@ import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import CreatePostDialog from './components/post/CreatePostDialog';
 import EditPostDialog from './components/post/EditPostDialog';
+import CreateCommentDialog from './components/post/CreateCommentDialog';
 import ReportDialog from './components/common/ReportDialog';
 import AdminDashboard from './pages/AdminDashboard';
 import RegisterCompany from './pages/RegisterCompany';
@@ -178,6 +179,7 @@ const AppContent = () => {
             <Snackbar />
             <CreatePostDialog />
             <EditPostDialog />
+            <CreateCommentDialog />
             <ReportDialog />
           </div>
         </Router>
