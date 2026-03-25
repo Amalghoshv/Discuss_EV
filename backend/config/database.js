@@ -51,7 +51,7 @@ const connectDB = async () => {
     await sequelize.authenticate();
     console.log('✅ Database connected successfully');
 
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.DB_SYNC === 'true') {
       await sequelize.sync({ alter: true });
       console.log('📊 Database models synchronized');
     }
