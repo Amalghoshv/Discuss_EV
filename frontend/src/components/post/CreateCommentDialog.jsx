@@ -22,6 +22,8 @@ const CreateCommentDialog = () => {
   const { isCreating } = useSelector((state) => state.comments);
   const isOpen = open && type === 'createComment';
   const postId = data?.postId;
+  const parentId = data?.parentId;
+  const isReply = !!parentId;
 
   const {
     register,
@@ -38,9 +40,9 @@ const CreateCommentDialog = () => {
 
   const onSubmit = async ({ content }) => {
     try {
-      await dispatch(createComment({ postId, content })).unwrap();
-      dispatch(showSnackbar({ message: 'Comment added!', severity: 'success' }));
-      // Refresh the post so commentCount updates
+      await dispatch(createComment({ postId, content, parentId })).unwrap();
+      dispatch(showSnackbar({ message: isReply ? 'Reply added!' : 'Comment added!', severity: 'success' }));
+      // Refresh the post so commentCount and replyCount update
       if (postId) dispatch(fetchPostById(postId));
       handleClose();
     } catch (error) {
@@ -58,7 +60,7 @@ const CreateCommentDialog = () => {
     >
       <DialogTitle sx={{ m: 0, p: 2, pb: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-          Add a Comment
+          {isReply ? 'Reply to Comment' : 'Add a Comment'}
         </Typography>
         <IconButton aria-label="close" onClick={handleClose} sx={{ color: (theme) => theme.palette.grey[500] }}>
           <CloseIcon />

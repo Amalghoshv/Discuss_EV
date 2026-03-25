@@ -32,6 +32,11 @@ const adminService = {
   resolveReport: async (id, status) => {
     const response = await api.put(`/admin/reports/${id}/resolve`, { status });
     return response.data;
+  },
+
+  submitReport: async (reportData) => {
+    const response = await api.post('/admin/reports', reportData);
+    return response.data;
   }
 };
 

@@ -245,23 +245,21 @@ const postSlice = createSlice({
         state.isDeleting = false;
         state.error = action.payload;
       })
-      // Like Post
+      // Like/Dislike Post
       .addCase(likePost.fulfilled, (state, action) => {
-        const { id, liked, type } = action.payload;
+        const { id, likeCount, dislikeCount } = action.payload;
+        
+        // Update in posts array
         const post = state.posts.find(p => p.id === id);
         if (post) {
-          if (liked) {
-            post.likeCount += 1;
-          } else {
-            post.likeCount = Math.max(0, post.likeCount - 1);
-          }
+          post.likeCount = likeCount;
+          post.dislikeCount = dislikeCount;
         }
+        
+        // Update in currentPost
         if (state.currentPost && state.currentPost.id === id) {
-          if (liked) {
-            state.currentPost.likeCount += 1;
-          } else {
-            state.currentPost.likeCount = Math.max(0, state.currentPost.likeCount - 1);
-          }
+          state.currentPost.likeCount = likeCount;
+          state.currentPost.dislikeCount = dislikeCount;
         }
       })
       // Fetch Trending Posts

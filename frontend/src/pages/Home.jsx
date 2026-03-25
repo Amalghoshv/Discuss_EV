@@ -232,9 +232,10 @@ const Home = () => {
                 sx={{
                   borderRadius: '11px', px: 3.5, py: 1.1,
                   fontWeight: 700, fontSize: '0.9rem', textTransform: 'none',
-                  bgcolor: '#fff', color: G,
+                  background: '#ffffff !important', // Force white background
+                  color: `${G} !important`,         // Force green text
                   boxShadow: '0 4px 20px rgba(0,0,0,0.2)',
-                  '&:hover': { bgcolor: '#F1F8F1', boxShadow: '0 6px 24px rgba(0,0,0,0.3)' },
+                  '&:hover': { background: '#F1F8F1 !important', boxShadow: '0 6px 24px rgba(0,0,0,0.3)' },
                 }}
               >
                 Join for free
@@ -246,8 +247,9 @@ const Home = () => {
                 sx={{
                   borderRadius: '11px', px: 3.5, py: 1.1,
                   fontWeight: 700, fontSize: '0.9rem', textTransform: 'none',
-                  borderColor: 'rgba(255,255,255,0.4)', color: '#fff',
-                  '&:hover': { bgcolor: 'rgba(255,255,255,0.08)', borderColor: 'rgba(255,255,255,0.7)' },
+                  border: '2px solid rgba(255,255,255,0.8) !important', // Thicker white border
+                  color: '#ffffff !important',                          // Force white text
+                  '&:hover': { background: 'rgba(255,255,255,0.1) !important', border: '2px solid #ffffff !important' },
                 }}
               >
                 Log in

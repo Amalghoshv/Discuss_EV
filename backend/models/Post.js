@@ -78,6 +78,10 @@ const Post = sequelize.define('Post', {
     type: DataTypes.INTEGER,
     defaultValue: 0
   },
+  dislikeCount: {
+    type: DataTypes.INTEGER,
+    defaultValue: 0
+  },
   commentCount: {
     type: DataTypes.INTEGER,
     defaultValue: 0
@@ -108,6 +112,9 @@ const Post = sequelize.define('Post', {
     },
     {
       fields: ['likeCount']
+    },
+    {
+      fields: ['dislikeCount']
     },
     {
       fields: ['viewCount']

@@ -312,15 +312,43 @@ const likePost = async (req, res) => {
     });
 
     if (existingReaction) {
-      if (existingReaction.type === type) {
+      const oldType = existingReaction.type;
+      
+      if (oldType === type) {
         // Remove reaction if same type
         await existingReaction.destroy();
-        await post.decrement('likeCount');
-        return res.json({ message: 'Reaction removed', liked: false });
+        
+        // Decrement the correct counter
+        if (oldType === 'like') await post.decrement('likeCount');
+        if (oldType === 'dislike') await post.decrement('dislikeCount');
+        
+        return res.json({ 
+          message: 'Reaction removed', 
+          liked: false,
+          likeCount: post.likeCount,
+          dislikeCount: post.dislikeCount
+        });
       } else {
         // Update reaction type
         await existingReaction.update({ type });
-        return res.json({ message: 'Reaction updated', liked: true, type });
+        
+        // Update counters: decrement old, increment new
+        if (oldType === 'like') await post.decrement('likeCount');
+        if (oldType === 'dislike') await post.decrement('dislikeCount');
+        
+        if (type === 'like') await post.increment('likeCount');
+        if (type === 'dislike') await post.increment('dislikeCount');
+        
+        // Reload post to get updated counts
+        await post.reload();
+        
+        return res.json({ 
+          message: 'Reaction updated', 
+          liked: type === 'like', 
+          type,
+          likeCount: post.likeCount,
+          dislikeCount: post.dislikeCount
+        });
       }
     } else {
       // Create new reaction
@@ -330,10 +358,16 @@ const likePost = async (req, res) => {
         targetType: 'post',
         type
       });
-      await post.increment('likeCount');
+      
+      // Increment the correct counter
+      if (type === 'like') await post.increment('likeCount');
+      if (type === 'dislike') await post.increment('dislikeCount');
 
-      // Notify post author (skip self-likes)
-      if (post.userId !== userId) {
+      // Reload post to get updated counts
+      await post.reload();
+
+      // Notify post author (skip self-likes, and only for 'like' type usually)
+      if (post.userId !== userId && type === 'like') {
         try {
           const liker = await User.findByPk(userId, {
             attributes: ['firstName', 'lastName']
@@ -355,11 +389,17 @@ const likePost = async (req, res) => {
         }
       }
 
-      return res.json({ message: 'Post liked', liked: true, type });
+      return res.json({ 
+        message: type === 'like' ? 'Post liked' : 'Post disliked', 
+        liked: type === 'like', 
+        type,
+        likeCount: post.likeCount,
+        dislikeCount: post.dislikeCount
+      });
     }
   } catch (error) {
     console.error('Like post error:', error);
-    res.status(500).json({ message: 'Failed to like post' });
+    res.status(500).json({ message: 'Failed to react to post' });
   }
 };
 
