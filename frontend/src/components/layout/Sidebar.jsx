@@ -28,7 +28,7 @@ import {
 } from '@mui/icons-material';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { setSidebarOpen } from '../../store/slices/uiSlice';
+import { setSidebarOpen, setMobileMenuOpen } from '../../store/slices/uiSlice';
 
 const drawerWidth = 240;
 
@@ -44,7 +44,7 @@ const Sidebar = () => {
 
   const handleDrawerToggle = () => {
     if (isMobile) {
-      dispatch(setSidebarOpen(!mobileMenuOpen));
+      dispatch(setMobileMenuOpen(!mobileMenuOpen));
     } else {
       dispatch(setSidebarOpen(!sidebarOpen));
     }
@@ -53,7 +53,7 @@ const Sidebar = () => {
   const handleNavigation = (path) => {
     navigate(path);
     if (isMobile) {
-      dispatch(setSidebarOpen(false));
+      dispatch(setMobileMenuOpen(false));
     }
   };
 
@@ -192,7 +192,7 @@ const Sidebar = () => {
     <Drawer
       variant={isMobile ? 'temporary' : 'persistent'}
       open={isMobile ? mobileMenuOpen : sidebarOpen}
-      onClose={handleDrawerToggle}
+      onClose={() => isMobile ? dispatch(setMobileMenuOpen(false)) : dispatch(setSidebarOpen(false))}
       sx={{
         width: (isMobile ? mobileMenuOpen : sidebarOpen) ? drawerWidth : 0,
         flexShrink: 0,

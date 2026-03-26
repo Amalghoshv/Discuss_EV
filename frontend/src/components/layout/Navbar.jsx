@@ -282,7 +282,7 @@ const Navbar = () => {
         borderBottom: `1px solid ${theme.palette.divider}`,
       }}
     >
-      <Toolbar sx={{ justifyContent: 'space-between', gap: 1, minHeight: { xs: 56, sm: 64 } }}>
+      <Toolbar sx={{ justifyContent: 'space-between', px: { xs: 2.5, sm: 2.5, md: 3 }, gap: { xs: 0.5, sm: 1, md: 2 }, minHeight: { xs: 56, sm: 64 } }}>
 
         {/* ── Left: logo ── */}
         <Box sx={{ display: 'flex', alignItems: 'center', flexShrink: 0 }}>
@@ -291,11 +291,11 @@ const Navbar = () => {
               <MenuIcon />
             </IconButton>
           )}
-          <Box sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer', mr: { xs: 1, md: 3 } }} onClick={() => navigate('/')}>
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 38, height: 38, borderRadius: '10px', background: 'linear-gradient(135deg, #2E7D32 0%, #43A047 100%)', color: '#fff', mr: 1.25, boxShadow: '0 4px 10px rgba(46,125,50,0.3)' }}>
-              <ElectricCarIcon sx={{ fontSize: 20 }} />
+          <Box sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer', mr: { xs: 0.5, sm: 1.5, md: 3 } }} onClick={() => navigate('/')}>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: { xs: 34, sm: 38 }, height: { xs: 34, sm: 38 }, borderRadius: '10px', background: 'linear-gradient(135deg, #2E7D32 0%, #43A047 100%)', color: '#fff', mr: { xs: 1, sm: 1.25 }, boxShadow: '0 4px 10px rgba(46,125,50,0.3)' }}>
+              <ElectricCarIcon sx={{ fontSize: { xs: 18, sm: 20 } }} />
             </Box>
-            <Typography variant="h6" sx={{ fontWeight: 800, letterSpacing: '-0.5px', fontSize: '1rem', display: { xs: 'none', sm: 'block' } }}>
+            <Typography variant="h6" sx={{ fontWeight: 800, letterSpacing: '-0.5px', fontSize: { xs: '0.9rem', sm: '1rem' }, display: { xs: 'none', sm: 'block' } }}>
               DiscussEV
             </Typography>
           </Box>
@@ -320,9 +320,10 @@ const Navbar = () => {
               : 'none',
             width: '100%',
             maxWidth: searchFocused
-              ? { xs: '180px', sm: '360px', md: '500px' }
-              : { xs: '140px', sm: '260px', md: '400px' },
-            mx: { xs: 1, md: 2 },
+              ? { xs: '100%', sm: '360px', md: '500px' }
+              : { xs: '38px', sm: '260px', md: '400px' }, // Collapse on mobile when not focused to save space
+            mx: { xs: 0.5, sm: 1, md: 2 },
+            overflow: 'hidden',
             transition: 'all 0.25s cubic-bezier(0.4,0,0.2,1)',
           }}
         >
@@ -366,7 +367,7 @@ const Navbar = () => {
         </Box>
 
         {/* ── Right: actions ── */}
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 0.5, md: 1 }, flexShrink: 0 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1.25, md: 1 }, flexShrink: 0 }}>
           {isAuthenticated ? (
             <>
               {user?.role === 'admin' && !isMobile && (

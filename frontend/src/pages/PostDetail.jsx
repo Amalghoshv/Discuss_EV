@@ -481,12 +481,14 @@ const PostDetail = () => {
             ref={commentRef}
             sx={{ 
               px: { xs: 2.5, md: 4 }, 
-              py: 2.5, 
+              py: { xs: 2, md: 2.5 }, 
               bgcolor: isLight ? '#f9fbf9' : 'rgba(0,0,0,0.15)', 
               borderTop: `1px solid ${border}`,
               display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'space-between' 
+              flexDirection: { xs: 'column', sm: 'row' },
+              alignItems: { xs: 'flex-start', sm: 'center' }, 
+              justifyContent: 'space-between',
+              gap: 2
             }}
           >
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
@@ -502,6 +504,7 @@ const PostDetail = () => {
             {isAuthenticated && (
               <Button
                 size="small"
+                fullWidth={isMobile}
                 startIcon={<Reply sx={{ fontSize: '16px !important' }} />}
                 onClick={() => dispatch({ type: 'ui/openDialog', payload: { type: 'createComment', data: { postId: id } } })}
                 sx={{

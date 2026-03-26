@@ -191,9 +191,15 @@ const PostCard = ({ post }) => {
         <Box sx={{ height: '1px', bgcolor: border, mb: 1.75 }} />
 
         {/* ── action row ── */}
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Box sx={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'space-between',
+          flexWrap: { xs: 'wrap', sm: 'nowrap' },
+          gap: 1
+        }}>
           {/* Vote + stats */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 0, sm: 0.25 }, overflowX: { xs: 'auto', sm: 'visible' }, pb: { xs: 0.5, sm: 0 } }}>
             <StatBtn
               icon={<ThumbUp />}
               count={likeCount}
