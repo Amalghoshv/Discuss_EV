@@ -243,13 +243,22 @@ const Home = () => {
             <Box sx={{ display: 'flex', gap: 1.25, flexDirection: { xs: 'column', sm: 'row' }, maxWidth: { xs: '100%', sm: 'fit-content' } }}>
               <Button
                 variant="contained"
+                disableElevation
                 onClick={() => navigate('/register')}
                 sx={{
                   borderRadius: '11px', px: { xs: 2, sm: 3.5 }, py: 1,
                   fontWeight: 700, fontSize: '0.88rem', textTransform: 'none',
-                  bgcolor: '#fff', color: G,
+                  background: '#ffffff',
+                  color: G,
                   boxShadow: '0 4px 20px rgba(0,0,0,0.2)',
-                  '&:hover': { bgcolor: '#F1F8F1', boxShadow: '0 6px 24px rgba(0,0,0,0.3)' },
+                  '&:hover': {
+                    background: '#E8F5E9',
+                    boxShadow: '0 6px 24px rgba(0,0,0,0.28)',
+                  },
+                  '&.MuiButton-contained': {
+                    background: '#ffffff',
+                    color: G,
+                  },
                 }}
               >
                 Join for free
@@ -260,9 +269,16 @@ const Home = () => {
                 sx={{
                   borderRadius: '11px', px: { xs: 2, sm: 3.5 }, py: 1,
                   fontWeight: 700, fontSize: '0.88rem', textTransform: 'none',
-                  border: '1.5px solid rgba(255,255,255,0.7)',
+                  border: '1.5px solid rgba(255,255,255,0.75)',
                   color: '#fff',
-                  '&:hover': { bgcolor: 'rgba(255,255,255,0.1)', border: '1.5px solid #fff' },
+                  '&:hover': {
+                    background: 'rgba(255,255,255,0.1)',
+                    border: '1.5px solid #fff',
+                  },
+                  '&.MuiButton-outlined': {
+                    border: '1.5px solid rgba(255,255,255,0.75)',
+                    color: '#fff',
+                  },
                 }}
               >
                 Log in
