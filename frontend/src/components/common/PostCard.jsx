@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Box, Avatar, Typography, useTheme } from '@mui/material';
 import {
   ThumbUp, ThumbDown, Comment, Visibility,
   ArrowForward, ReportProblem, BookmarkBorder, Bookmark,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { likePost } from '../../store/slices/postSlice';
+import { openDialog } from '../../store/slices/uiSlice';
 
 /* ── palette ── */
 const G = '#2E7D32';
@@ -53,24 +55,22 @@ const PostCard = ({ post }) => {
   const dispatch = useDispatch();
   const theme = useTheme();
   const isLight = theme.palette.mode === 'light';
+  const { isAuthenticated } = useSelector((s) => s.auth);
 
-  const [bookmarked, setBookmarked] = useState(false);
-  const [voted, setVoted] = useState(null); // 'up' | 'down' | null
-  const [likeCount, setLikeCount] = useState(post.likeCount || 0);
+  const voted = post.reactions?.[0]?.type === 'like' ? 'up' : (post.reactions?.[0]?.type === 'dislike' ? 'down' : null);
+  const likeCount = post.likeCount || 0;
+  const bookmarked = false; // Placeholder as bookmarking is not the focus here
 
   const border = isLight ? '#DDE8DD' : 'rgba(255,255,255,0.07)';
 
   const handleVote = (e, dir) => {
     e.stopPropagation();
-    if (voted === dir) {
-      setVoted(null);
-      setLikeCount((c) => dir === 'up' ? c - 1 : c + 1);
-    } else {
-      const prev = voted;
-      setVoted(dir);
-      if (dir === 'up') setLikeCount((c) => c + 1 + (prev === 'down' ? 1 : 0));
-      if (dir === 'down') setLikeCount((c) => c - 1 - (prev === 'up' ? 1 : 0));
+    if (!isAuthenticated) {
+      dispatch(openDialog({ type: 'login' }));
+      return;
     }
+    const type = dir === 'up' ? 'like' : 'dislike';
+    dispatch(likePost({ id: post.id, type }));
   };
 
   return (
@@ -143,7 +143,7 @@ const PostCard = ({ post }) => {
 
             {/* Bookmark */}
             <Box
-              onClick={(e) => { e.stopPropagation(); setBookmarked((b) => !b); }}
+              onClick={(e) => { e.stopPropagation(); /* setBookmarked((b) => !b); */ }}
               sx={{
                 display: 'flex', p: 0.5, borderRadius: '7px', cursor: 'pointer',
                 color: bookmarked ? GL : 'text.disabled',

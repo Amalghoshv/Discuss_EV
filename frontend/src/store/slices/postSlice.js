@@ -247,19 +247,25 @@ const postSlice = createSlice({
       })
       // Like/Dislike Post
       .addCase(likePost.fulfilled, (state, action) => {
-        const { id, likeCount, dislikeCount } = action.payload;
+        const { id, liked, type, likeCount, dislikeCount } = action.payload;
         
-        // Update in posts array
-        const post = state.posts.find(p => p.id === id);
-        if (post) {
-          post.likeCount = likeCount;
-          post.dislikeCount = dislikeCount;
-        }
+        const updatePostInArray = (array) => {
+          const post = array.find(p => p.id === id);
+          if (post) {
+            post.likeCount = likeCount;
+            post.dislikeCount = dislikeCount;
+            post.reactions = liked ? [{ type }] : [];
+          }
+        };
+
+        updatePostInArray(state.posts);
+        updatePostInArray(state.feedPosts);
+        updatePostInArray(state.trendingPosts);
         
-        // Update in currentPost
         if (state.currentPost && state.currentPost.id === id) {
           state.currentPost.likeCount = likeCount;
           state.currentPost.dislikeCount = dislikeCount;
+          state.currentPost.reactions = liked ? [{ type }] : [];
         }
       })
       // Fetch Trending Posts

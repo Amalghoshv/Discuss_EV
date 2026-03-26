@@ -120,6 +120,13 @@ const getPosts = async (req, res) => {
         as: 'tagList',
         attributes: ['id', 'name', 'slug'],
         through: { attributes: [] }
+      },
+      {
+        model: Reaction,
+        as: 'reactions',
+        where: req.user ? { userId: req.user.id } : { userId: null },
+        required: false,
+        attributes: ['type']
       }
     ];
 
@@ -177,6 +184,13 @@ const getPostById = async (req, res) => {
           as: 'tagList',
           attributes: ['id', 'name', 'slug'],
           through: { attributes: [] }
+        },
+        {
+          model: Reaction,
+          as: 'reactions',
+          where: req.user ? { userId: req.user.id } : { userId: null },
+          required: false,
+          attributes: ['type']
         },
         {
           model: Comment,
@@ -252,6 +266,13 @@ const updatePost = async (req, res) => {
           as: 'tagList',
           attributes: ['id', 'name', 'slug'],
           through: { attributes: [] }
+        },
+        {
+          model: Reaction,
+          as: 'reactions',
+          where: req.user ? { userId: req.user.id } : { userId: null },
+          required: false,
+          attributes: ['type']
         }
       ]
     });
@@ -427,7 +448,14 @@ const getFeedPosts = async (req, res) => {
       },
       include: [
         { model: User, as: 'author', attributes: ['id', 'username', 'firstName', 'lastName', 'avatar'] },
-        { model: Tag, as: 'tagList', attributes: ['id', 'name', 'slug'], through: { attributes: [] } }
+        { model: Tag, as: 'tagList', attributes: ['id', 'name', 'slug'], through: { attributes: [] } },
+        {
+          model: Reaction,
+          as: 'reactions',
+          where: { userId: userId },
+          required: false,
+          attributes: ['type']
+        }
       ],
       order: [['createdAt', 'DESC']],
       limit: parseInt(limit),
@@ -458,6 +486,13 @@ const getTrendingPosts = async (req, res) => {
           as: 'tagList',
           attributes: ['id', 'name', 'slug'],
           through: { attributes: [] }
+        },
+        {
+          model: Reaction,
+          as: 'reactions',
+          where: req.user ? { userId: req.user.id } : { userId: null },
+          required: false,
+          attributes: ['type']
         }
       ],
       order: [
