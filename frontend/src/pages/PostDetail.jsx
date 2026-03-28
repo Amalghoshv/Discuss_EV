@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import {
   Typography, Box, Avatar, Button, IconButton,
-  Tooltip, useTheme, Paper, Divider,
+  Tooltip, useTheme, useMediaQuery, Paper, Divider,
 } from '@mui/material';
 import {
   ThumbUp, ThumbDown, Comment, Visibility, Share,
@@ -172,7 +172,7 @@ const CommentItem = ({ comment, currentUser, isAuthenticated, dispatch, navigate
               ml: 0.5, 
               pl: 2 
             }}>
-              {comment.replies.map((reply, i) => (
+              {comment.replies.map((reply) => (
                 <CommentItem
                   key={reply.id}
                   comment={reply}
@@ -199,6 +199,7 @@ const CommentItem = ({ comment, currentUser, isAuthenticated, dispatch, navigate
 const PostDetail = () => {
   const theme = useTheme();
   const isLight = theme.palette.mode === 'light';
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { id } = useParams();

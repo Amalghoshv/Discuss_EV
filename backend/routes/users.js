@@ -1,6 +1,6 @@
 const express = require('express');
 const { authenticateToken, optionalAuth } = require('../middleware/auth');
-const { User, Post, Comment, Follow } = require('../models');
+const { User, Post, Comment, Follow, Company } = require('../models');
 const { Op } = require('sequelize');
 const bcrypt = require('bcryptjs');
 
@@ -42,6 +42,11 @@ router.get('/:id', optionalAuth, async (req, res) => {
     const user = await User.findByPk(id, {
       attributes: { exclude: ['password'] },
       include: [
+        {
+          model: Company,
+          as: 'company',
+          attributes: ['id', 'name', 'description', 'verificationStatus']
+        },
         {
           model: Post,
           as: 'posts',
@@ -93,7 +98,7 @@ router.get('/:id', optionalAuth, async (req, res) => {
 // Update user profile
 router.put('/profile', authenticateToken, async (req, res) => {
   try {
-    const { firstName, lastName, bio, preferences, avatar } = req.body;
+    const { firstName, lastName, username, bio, preferences, avatar } = req.body;
     const userId = req.user.id;
 
     const user = await User.findByPk(userId);
@@ -101,17 +106,49 @@ router.put('/profile', authenticateToken, async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
+    let normalizedUsername;
+    if (username !== undefined) {
+      normalizedUsername = username.trim();
+
+      if (normalizedUsername.length < 3 || normalizedUsername.length > 50) {
+        return res.status(400).json({ message: 'Username must be between 3 and 50 characters' });
+      }
+
+      const existingUser = await User.findOne({
+        where: {
+          username: normalizedUsername,
+          id: { [Op.ne]: userId }
+        }
+      });
+
+      if (existingUser) {
+        return res.status(400).json({ message: 'Username is already taken' });
+      }
+    }
+
     await user.update({
-      firstName: firstName || user.firstName,
-      lastName: lastName || user.lastName,
-      bio: bio || user.bio,
-      preferences: preferences || user.preferences,
+      firstName: firstName !== undefined ? firstName : user.firstName,
+      lastName: lastName !== undefined ? lastName : user.lastName,
+      username: normalizedUsername !== undefined ? normalizedUsername : user.username,
+      bio: bio !== undefined ? bio : user.bio,
+      preferences: preferences !== undefined ? preferences : user.preferences,
       avatar: avatar !== undefined ? avatar : user.avatar
+    });
+
+    const updatedUser = await User.findByPk(userId, {
+      attributes: { exclude: ['password'] },
+      include: [
+        {
+          model: Company,
+          as: 'company',
+          attributes: ['id', 'name', 'description', 'verificationStatus']
+        }
+      ]
     });
 
     res.json({
       message: 'Profile updated successfully',
-      user: user.getPublicProfile()
+      user: updatedUser.getPublicProfile()
     });
   } catch (error) {
     console.error('Update profile error:', error);

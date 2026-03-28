@@ -59,7 +59,7 @@ const CreateCommentDialog = () => {
       PaperProps={{ sx: { borderRadius: 3, p: 1 } }}
     >
       <DialogTitle sx={{ m: 0, p: 2, pb: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+        <Typography component="div" variant="h6" sx={{ fontWeight: 'bold' }}>
           {isReply ? 'Reply to Comment' : 'Add a Comment'}
         </Typography>
         <IconButton aria-label="close" onClick={handleClose} sx={{ color: (theme) => theme.palette.grey[500] }}>

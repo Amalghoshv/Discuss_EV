@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import {
   Typography, Box, Avatar, Button, Paper, Tab, Tabs,
-  Card, CardContent, Chip, Stack, useTheme, useMediaQuery,
+  Card, CardContent, Chip, Stack, useTheme,
 } from '@mui/material';
 import {
   PersonAdd, PersonRemove, LocationOn, CalendarToday,
   Email, Forum, Timeline, ElectricCar, ArrowForward,
-  Edit, Verified,
+  Edit, Verified, BusinessCenter,
 } from '@mui/icons-material';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -79,7 +79,6 @@ const Profile = () => {
   const { id } = useParams();
   const theme = useTheme();
   const isLight = theme.palette.mode === 'light';
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState(0);
@@ -114,6 +113,13 @@ const Profile = () => {
 
   const isOwnProfile = currentUser && String(currentUser.id) === String(currentProfile.id);
   const border = isLight ? '#DDE8DD' : 'rgba(255,255,255,0.07)';
+  const isApprovedCompanyProfile = currentProfile.company?.verificationStatus === 'approved';
+  const displayName = isApprovedCompanyProfile
+    ? currentProfile.company.name
+    : `${currentProfile.firstName} ${currentProfile.lastName}`;
+  const secondaryLabel = isApprovedCompanyProfile
+    ? `Managed by ${currentProfile.firstName} ${currentProfile.lastName}`
+    : `@${currentProfile.username}`;
 
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: isLight ? '#F2F6F2' : '#0A160B', pb: 8, overflowX: 'hidden' }}>
@@ -186,18 +192,29 @@ const Profile = () => {
           }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: { xs: 'center', md: 'flex-start' } }}>
               <Typography sx={{ fontWeight: 800, fontSize: { xs: '1.4rem', md: '1.8rem' }, letterSpacing: '-0.5px', lineHeight: 1.15 }}>
-                {currentProfile.firstName} {currentProfile.lastName}
+                {displayName}
               </Typography>
-              {currentProfile.role === 'admin' && (
+              {(currentProfile.role === 'admin' || currentProfile.isVerified || isApprovedCompanyProfile) && (
                 <Verified sx={{ color: '#1E88E5', fontSize: 20 }} />
               )}
             </Box>
             <Typography sx={{ fontSize: '0.88rem', color: 'text.secondary', fontWeight: 500, mt: 0.25 }}>
+              {secondaryLabel}
+            </Typography>
+            {isApprovedCompanyProfile && (
+              <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.75, mt: 1, px: 1.1, py: 0.35, borderRadius: '999px', bgcolor: isLight ? GP : 'rgba(67,160,71,0.12)', border: `1px solid ${isLight ? '#A5D6A7' : 'rgba(67,160,71,0.25)'}` }}>
+                <BusinessCenter sx={{ fontSize: 14, color: GL }} />
+                <Typography sx={{ fontSize: '0.7rem', fontWeight: 700, color: GL, letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+                  Verified Company Profile
+                </Typography>
+              </Box>
+            )}
+            <Typography sx={{ fontSize: '0.8rem', color: 'text.secondary', mt: isApprovedCompanyProfile ? 0.75 : 0.35, fontWeight: 500 }}>
               @{currentProfile.username}
             </Typography>
             {currentProfile.bio && (
               <Typography sx={{ fontSize: '0.83rem', color: 'text.secondary', mt: 0.75, maxWidth: 480, lineHeight: 1.55, display: { xs: 'none', md: 'block' } }}>
-                {currentProfile.bio}
+                {isApprovedCompanyProfile ? currentProfile.company?.description || currentProfile.bio : currentProfile.bio}
               </Typography>
             )}
           </Box>
@@ -297,6 +314,9 @@ const Profile = () => {
               <Typography sx={{ fontWeight: 700, fontSize: '0.88rem' }}>About</Typography>
             </Box>
             <Box sx={{ px: 2.5, py: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
+              {isApprovedCompanyProfile && (
+                <InfoRow icon={<BusinessCenter />} label="Company" value={currentProfile.company?.name} delay={240} />
+              )}
               <InfoRow icon={<LocationOn />} label="Location" value="Planet Earth" delay={260} />
               <InfoRow icon={<CalendarToday />} label="Joined" value={formatDate(currentProfile.createdAt)} delay={300} />
               <InfoRow icon={<Email />} label="Contact" value={currentProfile.email} delay={340} />
@@ -318,7 +338,7 @@ const Profile = () => {
                 border: `1px solid ${currentProfile.role === 'admin' ? 'rgba(211,47,47,0.25)' : 'rgba(67,160,71,0.3)'}`,
               }}>
                 <Typography sx={{ fontSize: '0.67rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: currentProfile.role === 'admin' ? '#C62828' : GL }}>
-                  {currentProfile.role}
+                  {isApprovedCompanyProfile ? 'company profile' : currentProfile.role}
                 </Typography>
               </Box>
             </Paper>

@@ -1,6 +1,6 @@
 const { validationResult } = require('express-validator');
 const jwt = require('jsonwebtoken');
-const { User, Follow } = require('../models');
+const { User, Follow, Company } = require('../models');
 const { Op } = require('sequelize');
 const { generateToken, generateRefreshToken } = require('../utils/jwt');
 const crypto = require('crypto');
@@ -173,7 +173,14 @@ const logout = async (req, res) => {
 const getProfile = async (req, res) => {
   try {
     const user = await User.findByPk(req.user.id, {
-      attributes: { exclude: ['password'] }
+      attributes: { exclude: ['password'] },
+      include: [
+        {
+          model: Company,
+          as: 'company',
+          attributes: ['id', 'name', 'description', 'verificationStatus']
+        }
+      ]
     });
 
     if (!user) {

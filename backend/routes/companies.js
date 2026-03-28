@@ -63,6 +63,14 @@ router.put('/:id/verify', authenticateToken, authorizeRoles('admin'), async (req
 
     await company.update({ verificationStatus: status });
 
+    const owner = await User.findByPk(company.ownerId);
+    if (owner) {
+      await owner.update({
+        companyId: company.id,
+        isVerified: status === 'approved'
+      });
+    }
+
     res.json({ message: `Company ${status} successfully`, company });
   } catch (error) {
     console.error('Verify company error:', error);

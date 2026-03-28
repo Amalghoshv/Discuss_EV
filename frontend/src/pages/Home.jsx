@@ -171,6 +171,7 @@ const Home = () => {
 
   const displayPosts = feedTab === 1 ? (feedPosts || []) : posts;
   const border = isLight ? '#DDE8DD' : 'rgba(255,255,255,0.07)';
+  const shouldShowBusinessCta = !isAuthenticated || (!user?.companyId && !user?.company);
 
   // Horizontal padding — tighter on very small screens
   const hPx = { xs: '12px', sm: '20px', md: '40px', xl: '64px' };
@@ -530,6 +531,7 @@ const Home = () => {
           </HomeCard>
 
           {/* EV Business CTA */}
+          {shouldShowBusinessCta && (
           <Paper elevation={0} sx={{
             borderRadius: '14px', overflow: 'hidden',
             border: '1px solid rgba(216,67,21,0.2)',
@@ -561,6 +563,7 @@ const Home = () => {
               </Button>
             </Box>
           </Paper>
+          )}
 
           {/* Join CTA */}
           {!isAuthenticated && (

@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import userService from '../../services/userService';
+import { updateProfile as updateAuthProfile } from './authSlice';
 
 export const fetchUserProfile = createAsyncThunk(
     'user/fetchProfile',
@@ -82,6 +83,14 @@ const userSlice = createSlice({
             .addCase(fetchUserProfile.rejected, (state, action) => {
                 state.isLoading = false;
                 state.error = action.payload;
+            })
+            .addCase(updateAuthProfile.fulfilled, (state, action) => {
+                if (state.currentProfile && state.currentProfile.id === action.payload.id) {
+                    state.currentProfile = {
+                        ...state.currentProfile,
+                        ...action.payload,
+                    };
+                }
             })
             // Search Users
             .addCase(searchUsers.pending, (state) => {

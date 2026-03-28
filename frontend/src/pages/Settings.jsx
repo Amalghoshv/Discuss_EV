@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     Typography, Box, Paper, Grid, TextField, Button,
     Avatar, IconButton, Alert, useTheme,
@@ -83,6 +83,17 @@ const Settings = () => {
     const [passwordData, setPasswordData] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
     const [passwordSuccess, setPasswordSuccess] = useState('');
     const [passwordError, setPasswordError] = useState('');
+
+    useEffect(() => {
+        setFormData({
+            firstName: user?.firstName || '',
+            lastName: user?.lastName || '',
+            username: user?.username || '',
+            bio: user?.bio || '',
+            email: user?.email || '',
+            avatar: user?.avatar || '',
+        });
+    }, [user]);
 
     const initialFormData = {
         firstName: user?.firstName || '', lastName: user?.lastName || '',

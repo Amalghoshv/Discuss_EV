@@ -145,7 +145,7 @@ const EditPostDialog = () => {
     >
       <DialogTitle sx={{ m: 0, p: 2, pb: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Box>
-          <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
+          <Typography component="div" variant="h5" sx={{ fontWeight: 'bold' }}>
             Edit Post
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
