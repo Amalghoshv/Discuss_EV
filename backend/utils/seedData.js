@@ -34,6 +34,16 @@ const seedData = async () => {
         lastName: 'Insights',
         bio: 'Market trends, battery technology, and global EV infrastructure updates.',
         avatar: 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?q=80&w=200&h=200&auto=format&fit=crop'
+      },
+      {
+        username: 'test_user',
+        email: 'user@discussev.com',
+        password: 'password123',
+        firstName: 'Test',
+        lastName: 'User',
+        bio: 'Standard test user account.',
+        role: 'user',
+        avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=200&h=200&auto=format&fit=crop'
       }
     ];
 

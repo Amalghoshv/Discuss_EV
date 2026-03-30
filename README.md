@@ -13,6 +13,12 @@ A comprehensive web-based platform fostering discussions and engagement among el
 - **Responsive Design**: Mobile-friendly interface built with Material-UI
 - **Real-time Updates**: Live notifications and updates using Socket.io
 
+## 🛠️ Admin Features
+- User management
+- Content moderation
+- Analytics dashboard
+- Notification control
+
 ## 🛠️ Tech Stack
 
 ### Frontend
@@ -36,20 +42,28 @@ A comprehensive web-based platform fostering discussions and engagement among el
 ## 📁 Project Structure
 
 ```
-discuss-ev/
+Discuss_EV/
+│
 ├── backend/
 │   ├── config/
 │   │   └── database.js
 │   ├── controllers/
-│   │   └── authController.js
+│   │   ├── authController.js
+│   │   ├── postController.js
+│   │   ├── commentController.js
+│   │   ├── userController.js
+│   │   └── notificationController.js
 │   ├── middleware/
-│   │   └── auth.js
+│   │   ├── auth.js
+│   │   ├── validation.js
+│   │   └── errorHandler.js
 │   ├── models/
 │   │   ├── User.js
 │   │   ├── Post.js
 │   │   ├── Comment.js
 │   │   ├── Reaction.js
 │   │   ├── Notification.js
+│   │   ├── Follow.js
 │   │   └── index.js
 │   ├── routes/
 │   │   ├── auth.js
@@ -59,26 +73,30 @@ discuss-ev/
 │   │   └── notifications.js
 │   ├── utils/
 │   │   └── jwt.js
+│   ├── seed/
+│   │   └── seedData.js
 │   ├── package.json
 │   └── server.js
+│
 ├── frontend/
 │   ├── src/
 │   │   ├── components/
-│   │   │   ├── layout/
-│   │   │   ├── common/
+│   │   │   ├── auth/
 │   │   │   ├── posts/
 │   │   │   ├── comments/
-│   │   │   └── auth/
+│   │   │   ├── layout/
+│   │   │   └── common/
 │   │   ├── pages/
 │   │   ├── services/
 │   │   ├── store/
 │   │   │   └── slices/
-│   │   ├── utils/
 │   │   ├── hooks/
+│   │   ├── utils/
 │   │   ├── App.jsx
 │   │   └── main.jsx
 │   ├── package.json
 │   └── vite.config.js
+│
 ├── package.json
 └── README.md
 ```
@@ -95,7 +113,7 @@ discuss-ev/
 
 1. **Clone the repository**
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/Amalghoshv/Discuss_EV.git
    cd discuss-ev
    ```
 
@@ -129,6 +147,12 @@ discuss-ev/
    PORT=5000
    NODE_ENV=development
    CLIENT_URL=http://localhost:5173
+   SMTP_HOST=smtp.gmail.com
+   SMTP_PORT=587
+   SMTP_USER=sample@gmail.com
+   SMTP_PASSWORD=samplepassword
+   FROM_EMAIL=sample@gmail.com
+   FROM_NAME="DiscussEV Support"
    ```
 
    **Frontend (.env)**
@@ -157,6 +181,23 @@ discuss-ev/
 4. **Engage**: Like posts, comment, and participate in conversations
 5. **Search**: Find specific topics using the search functionality
 6. **Categories**: Browse posts by EV-related categories
+
+Seeded Test Accounts
+
+The system includes pre-seeded test accounts:
+
+👤 Normal User
+{
+  "email": "user@discussev.com",
+  "password": "password123"
+}
+👑 Admin User
+{
+  "email": "official@discussev.com",
+  "password": "password123"
+}
+
+👉 These accounts are already available after seeding.
 
 ## 🔧 API Endpoints
 
